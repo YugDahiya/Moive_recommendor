@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommender System</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        /* ===== BODY & VIDEO ===== */
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        #bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            filter: brightness(0.3) blur(2px);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.6);
+            z-index: -1;
+        }
+        
+        /* ===== MAIN ===== */
+        h1 { margin-top: 100px; font-size: 2.8rem; color: #ff4b2b; text-shadow: 0 0 15px #ff1c00; }
+        form {
+            margin: 35px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        select {
+            padding: 12px;
+            width: 320px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            background-color: rgba(34, 34, 34, 0.8);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 75, 43, 0.2);
+        }
+        button {
+            padding: 10px 25px;
+            background-color: #ff4b2b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        button:hover { background-color: #ff1c00; box-shadow: 0 0 15px #ff1c00; }
+
+        h2 { margin-top: 35px; color: #ff4b2b; text-shadow: 0 0 8px #ff1c00; }
+
+        /* ===== MOVIES GRID ===== */
+        .movies {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 25px;
+            justify-items: center;
+            margin: 50px auto;
+            max-width: 1100px;
+            padding: 0 20px;
+        }
+
+        .movie-card {
+            width: 180px;
+            background-color: rgba(28, 28, 28, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 18px rgba(255, 75, 43, 0.25);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeUp 0.6s forwards;
+        }
+
+        /* Stagger animation using delay for each card */
+        {% for i in range(5) %}
+        .movie-card:nth-child({{ i+1 }}) { animation-delay: {{ i*0.15 }}s; }
+        {% endfor %}
+
+        .movie-card:hover {
+            transform: scale(1.07);
+            box-shadow: 0 0 40px rgba(255, 75, 43, 0.6);
+        }
+
+        .movie-card img { width: 100%; height: 270px; object-fit: cover; }
+        .movie-card h3 { font-size: 16px; margin: 10px 0 0 0; color: #ff4b2b; }
+        .movie-card p { font-size: 14px; color: #ccc; margin: 4px 0 10px 0; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            nav h2 { font-size: 1.3rem; }
+            h1 { font-size: 2rem; }
+            select, button { width: 85%; font-size: 14px; }
+            .movie-card { width: 160px; }
+            .movie-card img { height: 240px; }
+        }
+
+        @media (max-width: 480px) {
+            nav { flex-direction: column; gap: 10px; }
+            h1 { font-size: 1.8rem; margin-top: 25px; }
+            .movies { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+            .movie-card { width: 140px; }
+            .movie-card img { height: 210px; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Video -->
+    <video autoplay muted loop playsinline id="bg-video" poster="/static/bg-placeholder.jpg">
+    <source src="/static/bg-video.mp4" type="video/mp4">
+</video>
+
+<script>
+    const video = document.getElementById("bg-video");
+    video.addEventListener("loadeddata", () => {
+        video.style.opacity = "1";
+    });
+</script>
+
+<style>
+#bg-video {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+</style>
+
+
+<style>
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    filter: brightness(0.35) blur(2px);
+}
+</style>
+
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+    <div class="nav-container">
+        <div class="nav-logo">
+            <span class="logo-text">Movie Recommendation System</span> 🎬
+        </div>
+        <div class="nav-links">
+            <a href="https://mrs-gg4b.onrender.com/" title="Home">
+                <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="Home">
+            </a>
+            <a href="https://github.com/Dipanshuwiithi/MRS" target="_blank" title="GitHub Repository">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub">
+            </a>
+            <a href="https://github.com/Dipanshuwiithi" title="About">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png" alt="About">
+            </a>
+        </div>
+    </div>
+</nav>
+
+<style>
+/* ===== NAVBAR ===== */
+nav {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(25, 25, 25, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 50px;
+    padding: 10px 25px;
+    box-shadow: 0 0 20px rgba(255, 75, 43, 0.3);
+    z-index: 999;
+    width: fit-content;
+    animation: pulseGlow 3s ease-in-out infinite alternate;
+}
+
+/* Pulse animation for glow */
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(255, 75, 43, 0.2); }
+    100% { box-shadow: 0 0 25px rgba(255, 75, 43, 0.6); }
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #ff4b2b;
+    text-shadow: 0 0 8px #ff1c00;
+}
+
+.nav-links {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 75, 43, 0.15);
+    border-radius: 50%;
+    padding: 6px;
+    width: 34px;
+    height: 34px;
+    transition: all 0.3s ease;
+}
+
+.nav-links a img {
+    width: 20px;
+    height: 20px;
+    filter: invert(1);
+    opacity: 0.8;
+}
+
+.nav-links a:hover {
+    background: rgba(255, 75, 43, 0.5);
+    box-shadow: 0 0 12px rgba(255, 75, 43, 0.6);
+    transform: scale(1.1);
+}
+
+@media (max-width: 600px) {
+    nav {
+        top: 10px;
+        padding: 8px 18px;
+    }
+    .nav-links a {
+        width: 30px;
+        height: 30px;
+    }
+    .nav-links a img {
+        width: 16px;
+        height: 16px;
+    }
+}
+</style>
+
+    <!-- Title -->
+    <h1>Find Your Next Favourite Movie 🍿</h1>
+
+    <!-- Form -->
+    <form method="POST" autocomplete="off">
+    <div class="autocomplete-container" style="position: relative; width: 320px; margin: auto;">
+        <input 
+            type="text" 
+            name="movie" 
+            id="movie-input" 
+            placeholder="Type or select a movie..." 
+            required
+            style="
+                padding: 12px;
+                width: 100%;
+                border-radius: 8px;
+                border: none;
+                outline: none;
+                font-size: 15px;
+                background-color: rgba(34, 34, 34, 0.8);
+                color: #fff;
+                box-shadow: 0 0 10px rgba(255, 75, 43, 0.2);
+            "
+        >
+        <div id="autocomplete-list" 
+             style="
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: rgba(28,28,28,0.95);
+                max-height: 200px;
+                overflow-y: auto;
+                border-radius: 0 0 8px 8px;
+                z-index: 999;
+                display: none;
+             ">
+        </div>
+    </div>
+    <button type="submit" style="margin-top: 15px;">Show Recommendations</button>
+</form>
+
+<!-- JavaScript for typeahead -->
+<script>
+    const movieList = [
+        {% for movie in movie_list %}
+            "{{ movie }}",
+        {% endfor %}
+    ];
+
+    const input = document.getElementById("movie-input");
+    const autocompleteList = document.getElementById("autocomplete-list");
+
+    input.addEventListener("input", function() {
+        const val = this.value.toLowerCase();
+        autocompleteList.innerHTML = "";
+        if (!val) { autocompleteList.style.display = "none"; return; }
+
+        const filtered = movieList.filter(m => m.toLowerCase().includes(val));
+        if (filtered.length === 0) { autocompleteList.style.display = "none"; return; }
+
+        filtered.forEach(movie => {
+            const div = document.createElement("div");
+            div.textContent = movie;
+            div.style.padding = "8px";
+            div.style.cursor = "pointer";
+            div.style.color = "#fff";
+            div.addEventListener("click", () => {
+                input.value = movie;
+                autocompleteList.innerHTML = "";
+                autocompleteList.style.display = "none";
+            });
+            div.addEventListener("mouseover", () => div.style.background = "rgba(255,75,43,0.3)");
+            div.addEventListener("mouseout", () => div.style.background = "transparent");
+            autocompleteList.appendChild(div);
+        });
+
+        autocompleteList.style.display = "block";
+    });
+
+    // Hide list when clicking outside
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".autocomplete-container")) {
+            autocompleteList.style.display = "none";
+        }
+    });
+</script>
+
+    <!-- Recommendations -->
+    {% if recommendations %}
+        <h2>Top 5 Recommendations for "{{ selected_movie }}"</h2>
+        <div class="movies">
+            {% for rec in recommendations %}
+                <div class="movie-card">
+                    <img src="{{ rec.poster }}" alt="{{ rec.title }}">
+                    <h3>{{ rec.title }}</h3>
+                    <p>Year: {{ rec.year }}</p>
+                    <p>⭐ Rating: {{ rec.rating }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</body>
+</html>
