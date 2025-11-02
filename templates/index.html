@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +8,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-        /* ===== BODY & VIDEO ===== */
+        /* ===== BODY ===== */
         body {
             font-family: 'Poppins', sans-serif;
             color: #fff;
@@ -17,100 +16,285 @@
             padding: 0;
             text-align: center;
             overflow-x: hidden;
-        }
-
-        #bg-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -2;
-            filter: brightness(0.3) blur(2px);
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 10, 10, 0.6);
-            z-index: -1;
+            background-color: #00002a; 
+            background-image: radial-gradient(
+                circle at center,
+                #0d0d3b 0%, 
+                #00002a 70%
+            );
+            min-height: 100vh;
         }
         
-        /* ===== MAIN ===== */
-        h1 { margin-top: 100px; font-size: 2.8rem; color: #ff4b2b; text-shadow: 0 0 15px #ff1c00; }
+        /* ===== MODIFIED SEARCH FORM ===== */
         form {
-            margin: 35px auto;
+            margin: 50px auto 35px auto;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: center;
             align-items: center;
-            gap: 15px;
+            gap: 10px; 
+            width: auto; 
         }
-        select {
+
+        .autocomplete-container {
+            position: relative;
+            width: 360px;
+        }
+        
+        #movie-input {
             padding: 12px;
-            width: 320px;
+            width: 100%;
             border-radius: 8px;
             border: none;
             outline: none;
             font-size: 15px;
             background-color: rgba(34, 34, 34, 0.8);
             color: #fff;
-            box-shadow: 0 0 10px rgba(255, 75, 43, 0.2);
+            box-shadow: 0 0 10px rgba(75, 123, 255, 0.2);
+            height: 46px;
+            box-sizing: border-box;
         }
-        button {
-            padding: 10px 25px;
-            background-color: #ff4b2b;
+        
+        form button {
+            display: block;
+            background-color: #4b7bff;
             color: white;
             border: none;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 12px 20px;
             font-size: 15px;
+            height: 46px;
+            box-sizing: border-box;
+        }
+        form button:hover {
+            background-color: #004dff;
+            box-shadow: 0 0 15px #004dff;
+        }
+
+        #autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: rgba(28,28,28,0.95);
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 0 0 8px 8px;
+            z-index: 999;
+            display: none;
+            text-align: left;
+        }
+        
+        /* ===== NEW: GO BACK BUTTON ===== */
+        .go-back-container {
+            max-width: 1400px;
+            margin: 30px auto -30px auto; /* Position it above the results */
+            padding: 0 20px;
+            box-sizing: border-box;
+            text-align: left;
+        }
+
+        .go-back-btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: rgba(75, 123, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(75, 123, 255, 0.4);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
             transition: all 0.3s ease;
         }
-        button:hover { background-color: #ff1c00; box-shadow: 0 0 15px #ff1c00; }
 
-        h2 { margin-top: 35px; color: #ff4b2b; text-shadow: 0 0 8px #ff1c00; }
+        .go-back-btn:hover {
+            background-color: rgba(75, 123, 255, 0.5);
+            box-shadow: 0 0 15px rgba(75, 123, 255, 0.5);
+        }
 
-        /* ===== MOVIES GRID ===== */
+        /* ===== MODIFIED H2 HEADINGS ===== */
+        h2 { 
+            margin-top: 35px; 
+            margin-bottom: -30px; /* Pull the carousel closer */
+            color: #ffffff; /* White color */
+            text-shadow: none; /* No glow */
+            text-align: left; /* Aligned left */
+            
+            /* Align with grid/carousel */
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 20px; 
+            box-sizing: border-box;
+        }
+
+        /* ===== MOVIES GRID (For Recommendations Page) ===== */
         .movies {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px; 
             justify-items: center;
             margin: 50px auto;
-            max-width: 1100px;
+            max-width: 1400px;
             padding: 0 20px;
         }
 
+        /* ===== NEW: CAROUSEL STYLES ===== */
+        .carousel-wrapper {
+            position: relative;
+            max-width: 1400px;
+            margin: 50px auto;
+            padding: 0 40px; /* Space for buttons */
+            box-sizing: border-box;
+        }
+        
+        .carousel-container {
+            overflow: hidden;
+        }
+        
+        .carousel-track {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            margin: 0;
+            padding: 20px 0;
+            
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+        }
+        
+        .carousel-track::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .carousel-track .movie-card {
+            flex: 0 0 240px; /* Card width */
+            margin-right: 15px; /* Gap */
+            transform: none; /* No fade-up animation */
+            opacity: 1;
+            animation: none;
+        }
+        
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 20;
+            transition: background-color 0.3s ease;
+        }
+        
+        .carousel-btn:hover {
+            background-color: rgba(75, 123, 255, 0.8);
+        }
+        
+        .carousel-btn.prev {
+            left: 0px;
+        }
+        
+        .carousel-btn.next {
+            right: 0px;
+        }
+        /* ===== END CAROUSEL STYLES ===== */
+
+        /* ===== NEW: SEARCH RESULT CONTAINER ===== */
+        .search-result-container {
+            display: flex;
+            justify-content: center;
+            margin: 50px auto;
+        }
+
         .movie-card {
-            width: 180px;
+            width: 240px;
+            height: 360px;
             background-color: rgba(28, 28, 28, 0.9);
             border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 0 18px rgba(255, 75, 43, 0.25);
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s ease 0.3s;
+        }
+        
+        /* FadeUp animation only for recommendations grid */
+        .movies .movie-card {
             transform: translateY(20px);
             opacity: 0;
             animation: fadeUp 0.6s forwards;
         }
 
-        /* Stagger animation using delay for each card */
-        {% for i in range(5) %}
-        .movie-card:nth-child({{ i+1 }}) { animation-delay: {{ i*0.15 }}s; }
+        {% for i in range(12) %}
+        .movies .movie-card:nth-child({{ i+1 }}) { animation-delay: {{ i*0.1 }}s; }
         {% endfor %}
 
-        .movie-card:hover {
-            transform: scale(1.07);
-            box-shadow: 0 0 40px rgba(255, 75, 43, 0.6);
+        
+        /* --- HOVER EFFECT (SOFT BLUE BACKGROUND GLOW) --- */
+        .movie-card::after {
+            content: '';
+            position: absolute;
+            z-index: -1; 
+            top: -10px; 
+            left: -10px;
+            width: calc(100% + 20px);
+            height: calc(100% + 20px);
+            background: radial-gradient(
+                circle at var(--mouse-x-glow) var(--mouse-y-glow),
+                rgba(75, 123, 255, 0.7) 0%, /* Blue glow */
+                transparent 30%
+            );
+            filter: blur(15px);
+            border-radius: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-
-        .movie-card img { width: 100%; height: 270px; object-fit: cover; }
-        .movie-card h3 { font-size: 16px; margin: 10px 0 0 0; color: #ff4b2b; }
-        .movie-card p { font-size: 14px; color: #ccc; margin: 4px 0 10px 0; }
+        
+        .movie-card:hover {
+            transform: scale(1.09);
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s ease;
+        }
+        
+        .movie-card:hover::after {
+            opacity: 1;
+        }
+        /* --- END HOVER EFFECT --- */
+        
+        .movie-card img { 
+            width: 100%; 
+            height: 100%;
+            object-fit: cover; 
+            position: relative;
+            z-index: 2;
+            border-radius: 15px;
+        }
+        
+        .title-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 10px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 3;
+            text-align: left;
+            box-sizing: border-box;
+            transition: opacity 0.3s ease;
+            border-radius: 0 0 15px 15px;
+        }
 
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -119,209 +303,40 @@
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            nav h2 { font-size: 1.3rem; }
-            h1 { font-size: 2rem; }
-            select, button { width: 85%; font-size: 14px; }
-            .movie-card { width: 160px; }
-            .movie-card img { height: 240px; }
+            .movie-card { width: 200px; height: 300px; }
+            .carousel-track .movie-card { flex-basis: 200px; }
+            .movies { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
         }
-
+        
         @media (max-width: 480px) {
-            nav { flex-direction: column; gap: 10px; }
-            h1 { font-size: 1.8rem; margin-top: 25px; }
-            .movies { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-            .movie-card { width: 140px; }
-            .movie-card img { height: 210px; }
+            form { width: 90%; flex-direction: column; }
+            .autocomplete-container { width: 100%; }
+            form button { width: 100%; }
+            
+            .movie-card { width: 160px; height: 240px; }
+            .carousel-track .movie-card { flex-basis: 160px; }
+            .movies { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
         }
     </style>
 </head>
 
 <body>
-    <!-- Background Video -->
-    <video autoplay muted loop playsinline id="bg-video" poster="/static/bg-placeholder.jpg">
-    <source src="/static/bg-video.mp4" type="video/mp4">
-</video>
-
-<script>
-    const video = document.getElementById("bg-video");
-    video.addEventListener("loadeddata", () => {
-        video.style.opacity = "1";
-    });
-</script>
-
-<style>
-#bg-video {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
-</style>
-
-
-<style>
-#bg-video {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -2;
-    filter: brightness(0.35) blur(2px);
-}
-</style>
-
-
-<!-- ===== NAVBAR ===== -->
-<nav>
-    <div class="nav-container">
-        <div class="nav-logo">
-            <span class="logo-text">Movie Recommendation System</span> 🎬
-        </div>
-        <div class="nav-links">
-            <a href="https://mrs-gg4b.onrender.com/" title="Home">
-                <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="Home">
-            </a>
-            <a href="https://github.com/YugDahiya/Moive_recommendor" target="_blank" title="GitHub Repository">
-                <img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub">
-            </a>
-            <a href="https://github.com/YugDahiya/Moive_recommendor" title="About">
-                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png" alt="About">
-            </a>
-        </div>
-    </div>
-</nav>
-
-<style>
-/* ===== NAVBAR ===== */
-nav {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(25, 25, 25, 0.6);
-    backdrop-filter: blur(12px);
-    border-radius: 50px;
-    padding: 10px 25px;
-    box-shadow: 0 0 20px rgba(255, 75, 43, 0.3);
-    z-index: 999;
-    width: fit-content;
-    animation: pulseGlow 3s ease-in-out infinite alternate;
-}
-
-/* Pulse animation for glow */
-@keyframes pulseGlow {
-    0% { box-shadow: 0 0 10px rgba(255, 75, 43, 0.2); }
-    100% { box-shadow: 0 0 25px rgba(255, 75, 43, 0.6); }
-}
-
-.nav-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.logo-text {
-    font-size: 20px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    color: #ff4b2b;
-    text-shadow: 0 0 8px #ff1c00;
-}
-
-.nav-links {
-    display: flex;
-    gap: 10px;
-}
-
-.nav-links a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 75, 43, 0.15);
-    border-radius: 50%;
-    padding: 6px;
-    width: 34px;
-    height: 34px;
-    transition: all 0.3s ease;
-}
-
-.nav-links a img {
-    width: 20px;
-    height: 20px;
-    filter: invert(1);
-    opacity: 0.8;
-}
-
-.nav-links a:hover {
-    background: rgba(255, 75, 43, 0.5);
-    box-shadow: 0 0 12px rgba(255, 75, 43, 0.6);
-    transform: scale(1.1);
-}
-
-@media (max-width: 600px) {
-    nav {
-        top: 10px;
-        padding: 8px 18px;
-    }
-    .nav-links a {
-        width: 30px;
-        height: 30px;
-    }
-    .nav-links a img {
-        width: 16px;
-        height: 16px;
-    }
-}
-</style>
-
-    <!-- Title -->
-    <h1>Find Your Next Favourite Movie 🍿</h1>
-
-    <!-- Form -->
-    <form method="POST" autocomplete="off">
-    <div class="autocomplete-container" style="position: relative; width: 320px; margin: auto;">
+    
+<form method="POST" autocomplete="off">
+    <div class="autocomplete-container">
         <input 
             type="text" 
             name="movie" 
             id="movie-input" 
-            placeholder="Type or select a movie..." 
+            placeholder="Search for a movie..." 
             required
-            style="
-                padding: 12px;
-                width: 100%;
-                border-radius: 8px;
-                border: none;
-                outline: none;
-                font-size: 15px;
-                background-color: rgba(34, 34, 34, 0.8);
-                color: #fff;
-                box-shadow: 0 0 10px rgba(255, 75, 43, 0.2);
-            "
         >
-        <div id="autocomplete-list" 
-             style="
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background-color: rgba(28,28,28,0.95);
-                max-height: 200px;
-                overflow-y: auto;
-                border-radius: 0 0 8px 8px;
-                z-index: 999;
-                display: none;
-             ">
+        <div id="autocomplete-list">
         </div>
     </div>
-    <button type="submit" style="margin-top: 15px;">Show Recommendations</button>
+    <button type="submit">Show Results</button>
 </form>
 
-<!-- JavaScript for typeahead -->
 <script>
     const movieList = [
         {% for movie in movie_list %}
@@ -336,14 +351,12 @@ nav {
         const val = this.value.toLowerCase();
         autocompleteList.innerHTML = "";
         if (!val) { autocompleteList.style.display = "none"; return; }
-
         const filtered = movieList.filter(m => m.toLowerCase().includes(val));
         if (filtered.length === 0) { autocompleteList.style.display = "none"; return; }
-
         filtered.forEach(movie => {
             const div = document.createElement("div");
             div.textContent = movie;
-            div.style.padding = "8px";
+            div.style.padding = "8px 12px";
             div.style.cursor = "pointer";
             div.style.color = "#fff";
             div.addEventListener("click", () => {
@@ -351,15 +364,12 @@ nav {
                 autocompleteList.innerHTML = "";
                 autocompleteList.style.display = "none";
             });
-            div.addEventListener("mouseover", () => div.style.background = "rgba(255,75,43,0.3)");
+            div.addEventListener("mouseover", () => div.style.background = "rgba(75,123,255,0.3)");
             div.addEventListener("mouseout", () => div.style.background = "transparent");
             autocompleteList.appendChild(div);
         });
-
         autocompleteList.style.display = "block";
     });
-
-    // Hide list when clicking outside
     document.addEventListener("click", function(e) {
         if (!e.target.closest(".autocomplete-container")) {
             autocompleteList.style.display = "none";
@@ -367,19 +377,169 @@ nav {
     });
 </script>
 
-    <!-- Recommendations -->
-    {% if recommendations %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('mousemove', (e) => {
+            const card = e.target.closest('.movie-card');
+            if (!card) return;
+
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) + 10; 
+            const y = (e.clientY - rect.top) + 10;
+            
+            card.style.setProperty('--mouse-x-glow', `${x}px`);
+            card.style.setProperty('--mouse-y-glow', `${y}px`);
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const carouselButtons = document.querySelectorAll('.carousel-btn');
+        
+        carouselButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.target;
+                const track = document.getElementById(targetId);
+                if (!track) return;
+                
+                const card = track.querySelector('.movie-card');
+                if (!card) return;
+                
+                const cardWidth = card.offsetWidth;
+                const cardMargin = parseInt(window.getComputedStyle(card).marginRight);
+                const containerWidth = track.parentElement.offsetWidth;
+                const scrollAmount = (Math.floor(containerWidth / (cardWidth + cardMargin)) || 1) * (cardWidth + cardMargin);
+
+                if (button.classList.contains('next')) {
+                    track.scrollLeft += scrollAmount;
+                } else {
+                    track.scrollLeft -= scrollAmount;
+                }
+            });
+        });
+    });
+</script>
+
+    
+{% if recommendations %}
+        
+        <div class="go-back-container">
+            <a href="/" class="go-back-btn">&larr; Go Back to Home</a>
+        </div>
+        
+        {% if searched_movie_details %}
+            <h2>You Searched For</h2>
+            <div class="search-result-container">
+                <div class="movie-card" style="opacity: 1; transform: none; animation: none;">
+                    <img src="{{ searched_movie_details.poster }}" alt="{{ searched_movie_details.title }}">
+                    <div class="title-overlay">{{ searched_movie_details.title }}</div>
+                </div>
+            </div>
+        {% endif %}
+
         <h2>Top 5 Recommendations for "{{ selected_movie }}"</h2>
         <div class="movies">
             {% for rec in recommendations %}
                 <div class="movie-card">
                     <img src="{{ rec.poster }}" alt="{{ rec.title }}">
-                    <h3>{{ rec.title }}</h3>
-                    <p>Year: {{ rec.year }}</p>
-                    <p>⭐ Rating: {{ rec.rating }}</p>
+                    <div class="title-overlay">{{ rec.title }}</div>
                 </div>
             {% endfor %}
         </div>
+
+    {% else %}
+        
+        {% if top_rated %}
+            <h2>Top Rated Movies</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-btn prev" data-target="carousel-top-rated">&#8249;</button>
+                <div class="carousel-container">
+                    <div class="carousel-track" id="carousel-top-rated">
+                        {% for movie in top_rated %}
+                            <div class="movie-card">
+                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+                                <div class="title-overlay">{{ movie.title }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="carousel-btn next" data-target="carousel-top-rated">&#8250;</button>
+            </div>
+        {% endif %}
+
+        {% if action_movies %}
+            <h2>Action</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-btn prev" data-target="carousel-action">&#8249;</button>
+                <div class="carousel-container">
+                    <div class="carousel-track" id="carousel-action">
+                        {% for movie in action_movies %}
+                            <div class="movie-card">
+                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+                                <div class="title-overlay">{{ movie.title }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="carousel-btn next" data-target="carousel-action">&#8250;</button>
+            </div>
+        {% endif %}
+
+        {% if comedy_movies %}
+            <h2>Comedy</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-btn prev" data-target="carousel-comedy">&#8249;</button>
+                <div class="carousel-container">
+                    <div class="carousel-track" id="carousel-comedy">
+                        {% for movie in comedy_movies %}
+                            <div class="movie-card">
+                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+                                <div classs="title-overlay">{{ movie.title }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="carousel-btn next" data-target="carousel-comedy">&#8250;</button>
+            </div>
+        {% endif %}
+        
+        {% if drama_movies %}
+            <h2>Drama</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-btn prev" data-target="carousel-drama">&#8249;</button>
+                <div class="carousel-container">
+                    <div class="carousel-track" id="carousel-drama">
+                        {% for movie in drama_movies %}
+                            <div class="movie-card">
+                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+                                <div class="title-overlay">{{ movie.title }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="carousel-btn next" data-target="carousel-drama">&#8250;</button>
+            </div>
+        {% endif %}
+
+        {% if scifi_movies %}
+            <h2>Science Fiction</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-btn prev" data-target="carousel-scifi">&#8249;</button>
+                <div class="carousel-container">
+                    <div class="carousel-track" id="carousel-scifi">
+                        {% for movie in scifi_movies %}
+                            <div class="movie-card">
+                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+                                <div class="title-overlay">{{ movie.title }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button classs="carousel-btn next" data-target="carousel-scifi">&#8250;</button>
+            </div>
+        {% endif %}
+
     {% endif %}
 </body>
 </html>
