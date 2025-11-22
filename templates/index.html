@@ -1,600 +1,469 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Recommender System</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Movie Recommender System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    :root{
+      --bg-1:#0d0d3b;
+      --bg-2:#00002a;
+      --accent:rgba(75,123,255,0.8);
+      --card-bg:rgba(28,28,28,0.9);
+    }
+    html,body{height:100%}
+    body{
+      font-family:'Poppins',sans-serif;
+      color:#fff;
+      margin:0;
+      padding:0;
+      text-align:center;
+      overflow-x:hidden;
+      background-color:var(--bg-2);
+      background-image:radial-gradient(circle at center,var(--bg-1) 0%,var(--bg-2) 70%);
+      min-height:100vh;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    /* ===== SEARCH ===== */
+    form{margin:40px auto 28px auto;display:flex;gap:10px;align-items:center;justify-content:center;width:94%;max-width:880px}
+    .autocomplete-container{position:relative;width:100%;max-width:560px}
+    #movie-input{padding:12px 14px;width:100%;border-radius:10px;border:none;outline:none;font-size:15px;background-color:rgba(34,34,34,0.88);color:#fff;box-shadow:0 0 10px rgba(75,123,255,0.12);height:48px;box-sizing:border-box;touch-action:manipulation}
+    form button{background-color:#4b7bff;color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:all .18s;padding:12px 18px;font-size:15px;height:48px;box-sizing:border-box}
+    form button:hover{filter:brightness(.96)}
+    #autocomplete-list{position:absolute;top:100%;left:0;right:0;background-color:rgba(22,22,22,0.98);max-height:220px;overflow-y:auto;border-radius:0 0 10px 10px;z-index:9999;display:none;text-align:left;-webkit-overflow-scrolling:touch}
+    #autocomplete-list div{padding:10px 12px;cursor:pointer;color:#fff}
 
-        /* ===== BODY ===== */
-        body {
-            font-family: 'Poppins', sans-serif;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-            overflow-x: hidden;
-            background-color: #00002a; 
-            background-image: radial-gradient(
-                circle at center,
-                #0d0d3b 0%, 
-                #00002a 70%
-            );
-            min-height: 100vh;
-        }
-        
-        /* ===== SEARCH FORM ===== */
-        form {
-            margin: 50px auto 35px auto;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            gap: 10px; 
-            width: auto; 
-        }
+    h2{margin-top:28px;margin-bottom:-18px;color:#fff;text-align:left;max-width:1400px;margin-left:auto;margin-right:auto;padding-left:20px;box-sizing:border-box}
+    .go-back-container{max-width:1400px;margin:18px auto;padding:0 20px;text-align:left}
+    .go-back-btn{padding:8px 14px;border-radius:8px;background:rgba(75,123,255,0.12);border:1px solid rgba(75,123,255,0.18);color:#fff;text-decoration:none;font-weight:600}
 
-        .autocomplete-container {
-            position: relative;
-            width: 360px;
-        }
-        
-        #movie-input {
-            padding: 12px;
-            width: 100%;
-            border-radius: 8px;
-            border: none;
-            outline: none;
-            font-size: 15px;
-            background-color: rgba(34, 34, 34, 0.8);
-            color: #fff;
-            box-shadow: 0 0 10px rgba(75, 123, 255, 0.2);
-            height: 46px;
-            box-sizing: border-box;
-        }
-        
-        form button {
-            display: block;
-            background-color: #4b7bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 12px 20px;
-            font-size: 15px;
-            height: 46px;
-            box-sizing: border-box;
-        }
-        form button:hover {
-            background-color: #004dff;
-            box-shadow: 0 0 15px #004dff;
-        }
+    /* ===== MOVIES GRID ===== */
+    .movies{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;justify-items:center;margin:36px auto;max-width:1400px;padding:0 20px;padding-bottom:72px;box-sizing:border-box}
 
-        #autocomplete-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: rgba(28,28,28,0.95);
-            max-height: 200px;
-            overflow-y: auto;
-            border-radius: 0 0 8px 8px;
-            z-index: 999;
-            display: none;
-            text-align: left;
-        }
-        
-        /* ===== GO BACK ===== */
-        .go-back-container {
-            max-width: 1400px;
-            margin: 30px auto -30px auto;
-            padding: 0 20px;
-            box-sizing: border-box;
-            text-align: left;
-        }
+    /* ===== CAROUSEL — old UI (240px cards) ===== */
+    .carousel-wrapper {
+      position: relative;
+      max-width: 1400px;
+      margin: 50px auto;
+      padding: 0 40px; /* space for arrow buttons */
+      box-sizing: border-box;
+    }
+    .carousel-container { overflow: hidden; }
+    .carousel-track {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      margin: 0;
+      padding: 20px 0;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none;  /* IE and Edge */
+    }
+    .carousel-track::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+    /* card size */
+    .carousel-track .movie-card { flex: 0 0 240px; margin-right: 15px; transform: none; opacity: 1; animation: none; }
+    /* circular slim buttons on edges */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(0,0,0,0.45);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 20;
+      transition: background-color 0.25s ease, transform 0.12s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      backdrop-filter: blur(2px);
+    }
+    .carousel-btn:hover { background-color: var(--accent); transform: scale(1.03); box-shadow: 0 6px 18px rgba(38,99,255,0.12); }
+    .carousel-btn.prev { left: 6px; }
+    .carousel-btn.next { right: 6px; }
 
-        .go-back-btn {
-            display: inline-block;
-            padding: 10px 18px;
-            background-color: rgba(75, 123, 255, 0.2);
-            color: #fff;
-            border: 1px solid rgba(75, 123, 255, 0.4);
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
+    /* ===== MOVIE CARD (general) ===== */
+    .movie-card{width:240px;height:360px;background:var(--card-bg);border-radius:15px;position:relative;overflow:hidden;transition:transform .3s ease,box-shadow .3s ease;cursor:pointer;will-change:transform}
+    .movie-card img{width:100%;height:100%;object-fit:cover;display:block;border-radius:15px}
+    .title-overlay{position:absolute;bottom:0;left:0;width:100%;padding:15px 10px;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.7) 50%,transparent 100%);color:#fff;font-size:16px;font-weight:bold;text-align:left;box-sizing:border-box;border-radius:0 0 15px 15px}
 
-        .go-back-btn:hover {
-            background-color: rgba(75, 123, 255, 0.5);
-            box-shadow: 0 0 15px rgba(75, 123, 255, 0.5);
-        }
+    /* fade-up animation for grid */
+    .movies .movie-card { transform: translateY(20px); opacity: 0; animation: fadeUp 0.6s forwards; }
+    {% for i in range(12) %}
+    .movies .movie-card:nth-child({{ i+1 }}) { animation-delay: {{ i*0.1 }}s; }
+    {% endfor %}
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ===== HEADINGS ===== */
-        h2 { 
-            margin-top: 35px; 
-            margin-bottom: -10px; /* reduced negative margin so searched section aligns nicely */
-            color: #ffffff;
-            text-shadow: none;
-            text-align: left;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 20px; 
-            box-sizing: border-box;
-        }
+    /* ===== HOVER GLOW & LIFT (desktop) ===== */
+    .movie-card {
+      position: relative;
+      transition: transform 250ms cubic-bezier(.2,.9,.2,1), box-shadow 250ms cubic-bezier(.2,.9,.2,1);
+      will-change: transform;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .movie-card::after {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      top: -12px;
+      left: -12px;
+      width: calc(100% + 24px);
+      height: calc(100% + 24px);
+      pointer-events: none;
+      border-radius: 16px;
+      background: radial-gradient(circle at var(--mouse-x-glow, 50%) var(--mouse-y-glow, 50%),
+                                 rgba(75,123,255,0.18) 0%,
+                                 rgba(75,123,255,0.09) 8%,
+                                 rgba(75,123,255,0.03) 22%,
+                                 transparent 45%);
+      filter: blur(14px);
+      opacity: 0;
+      transition: opacity 220ms ease;
+    }
+    .movie-card.hovered {
+      transform: translateY(-8px) scale(1.04);
+      z-index: 12;
+      box-shadow: 0 18px 40px rgba(8,24,48,0.6);
+    }
+    .movie-card.hovered::after { opacity: 1; }
+    .movie-card > img, .movie-card .title-overlay {
+      position: relative;
+      z-index: 2;
+      transition: transform 220ms ease, opacity 200ms ease;
+    }
+    .movie-card.hovered .title-overlay { transform: translateY(-4px); opacity: 0.98; }
 
-        /* ===== SEARCH RESULT CONTAINER (CENTER THE SEARCHED MOVIE) ===== */
-        .search-result-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 40px auto;
-            max-width: 1400px;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
+    /* reduce on touch devices */
+    @media (hover: none), (max-width: 480px) {
+      .movie-card::after { display: none; }
+      .movie-card.hovered { transform: none; box-shadow: none; }
+      .movie-card .title-overlay { transform: none; }
+      .movie-card { width: 160px; height: 240px; }
+      .carousel-track .movie-card { flex-basis: 160px; }
+    }
 
-        /* ===== MOVIES GRID ===== */
-        .movies {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 15px; 
-            justify-items: center;
-            margin: 50px auto;
-            max-width: 1400px;
-            padding: 0 20px;
-        }
+    /* ===== MODAL & DETAILS ===== */
+    .movie-modal{display:none;position:fixed;inset:0;z-index:3000}
+    .movie-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+    .movie-modal-content{position:relative;width:min(1000px,96%);margin:6vh auto;background:rgba(10,10,12,0.98);border-radius:12px;padding:16px;box-shadow:0 18px 60px rgba(0,0,0,0.6);max-height:calc(100vh - 64px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .movie-modal-close{position:absolute;right:12px;top:8px;background:transparent;border:none;color:#fff;font-size:28px;cursor:pointer;padding:8px;border-radius:8px;touch-action:manipulation}
+    .movie-modal-body{display:flex;gap:18px;align-items:flex-start}
+    .movie-modal-poster img{width:260px;height:390px;object-fit:cover;border-radius:10px;display:block}
+    .movie-modal-info{text-align:left;color:#fff;flex:1}
+    #modal-meta span{margin-right:10px;color:#dfe8ff;opacity:0.95;font-size:14px}
+    .providers{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .provider-badge{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:10px}
+    .provider-badge img{width:36px;height:36px;object-fit:contain;display:block;border-radius:6px;background:#fff;padding:2px}
+    .cast-grid{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    .cast-card{width:110px;text-align:center;color:#fff}
+    .cast-card img{width:100%;height:140px;object-fit:cover;border-radius:8px;display:block;margin-bottom:8px}
 
-        /* ===== CAROUSEL ===== */
-        .carousel-wrapper {
-            position: relative;
-            max-width: 1400px;
-            margin: 50px auto;
-            padding: 0 40px;
-            box-sizing: border-box;
-        }
-        
-        .carousel-container {
-            overflow: hidden;
-        }
-        
-        .carousel-track {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-            margin: 0;
-            padding: 20px 0;
-            
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
-        }
-        
-        .carousel-track::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .carousel-track .movie-card {
-            flex: 0 0 240px;
-            margin-right: 15px;
-            transform: none;
-            opacity: 1;
-            animation: none;
-        }
-        
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 20;
-            transition: background-color 0.3s ease;
-        }
-        
-        .carousel-btn:hover {
-            background-color: rgba(75, 123, 255, 0.8);
-        }
-        
-        .carousel-btn.prev {
-            left: 0px;
-        }
-        
-        .carousel-btn.next {
-            right: 0px;
-        }
+    /* responsive adjustments */
+    @media (max-width: 880px) {
+      .movie-modal-content { padding:12px; margin:4vh 10px; max-width:92%; }
+      .movie-modal-body { flex-direction: column; align-items: center; }
+      .movie-modal-poster img { width:200px; height:300px; }
+      .cast-grid { justify-content: center; }
+    }
 
-        /* ===== MOVIE CARD ===== */
-        .movie-card {
-            width: 240px;
-            height: 360px;
-            background-color: rgba(28, 28, 28, 0.9);
-            border-radius: 15px;
-            position: relative;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s ease 0.3s;
-            cursor: pointer;
-        }
-        
-        .movies .movie-card {
-            transform: translateY(20px);
-            opacity: 0;
-            animation: fadeUp 0.6s forwards;
-        }
-
-        {% for i in range(12) %}
-        .movies .movie-card:nth-child({{ i+1 }}) { animation-delay: {{ i*0.1 }}s; }
-        {% endfor %}
-
-        .movie-card::after {
-            content: '';
-            position: absolute;
-            z-index: -1; 
-            top: -10px; 
-            left: -10px;
-            width: calc(100% + 20px);
-            height: calc(100% + 20px);
-            background: radial-gradient(
-                circle at var(--mouse-x-glow) var(--mouse-y-glow),
-                rgba(75, 123, 255, 0.7) 0%,
-                transparent 30%
-            );
-            filter: blur(15px);
-            border-radius: 15px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .movie-card:hover {
-            transform: scale(1.09);
-            z-index: 10;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s ease;
-        }
-        
-        .movie-card:hover::after {
-            opacity: 1;
-        }
-        
-        .movie-card img { 
-            width: 100%; 
-            height: 100%;
-            object-fit: cover; 
-            position: relative;
-            z-index: 2;
-            border-radius: 15px;
-        }
-        
-        .title-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 15px 10px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 3;
-            text-align: left;
-            box-sizing: border-box;
-            transition: opacity 0.3s ease;
-            border-radius: 0 0 15px 15px;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .movie-card { width: 200px; height: 300px; }
-            .carousel-track .movie-card { flex-basis: 200px; }
-            .movies { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-        }
-        
-        @media (max-width: 480px) {
-            form { width: 90%; flex-direction: column; }
-            .autocomplete-container { width: 100%; }
-            form button { width: 100%; }
-            
-            .movie-card { width: 160px; height: 240px; }
-            .carousel-track .movie-card { flex-basis: 160px; }
-            .movies { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
-            /* Ensure the search-result container still centers on small screens */
-            .search-result-container { margin: 24px auto; padding: 0 12px; }
-        }
-
-        /* Modal */
-        .movie-modal { display: none; position: fixed; inset: 0; z-index: 2000; }
-        .movie-modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
-        .movie-modal-content { position: relative; max-width: 1000px; margin: 6vh auto; background: rgba(18,18,18,0.98); border-radius: 12px; padding: 18px; display: flex; align-items: center; box-shadow: 0 10px 50px rgba(0,0,0,0.7); }
-        .movie-modal-close { position: absolute; right: 12px; top: 8px; background: transparent; border: none; color: #fff; font-size: 28px; cursor: pointer; }
-        .movie-modal-body { display: flex; gap: 20px; width: 100%; }
-        .movie-modal-poster img { width: 260px; height: 390px; object-fit: cover; border-radius: 10px; }
-        .movie-modal-info { color: #fff; text-align: left; flex: 1; }
-        #modal-meta span { display: inline-block; margin-right: 12px; opacity: 0.9; font-size: 14px; }
-        #modal-genres { font-style: italic; margin-top: 6px; color: #dfe8ff; opacity: 0.9; }
-        #modal-overview { margin-top: 12px; line-height: 1.45; }
-        .modal-cast-list { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-        .cast-item { width: 110px; text-align: center; color: #fff; font-size: 13px; }
-        .cast-item img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; display:block; margin-bottom:8px; }
-        @media (max-width: 880px) {
-          .movie-modal-content { padding: 12px; margin: 4vh 10px; flex-direction: column; max-width: 92%; }
-          .movie-modal-body { flex-direction: column; align-items: center; }
-          .movie-modal-poster img { width: 200px; height: 300px; }
-          .modal-cast-list { justify-content: center; }
-        }
-    </style>
+    /* when modal is open, prevent background scroll */
+    body.modal-open { overflow: hidden; }
+  </style>
 </head>
-
 <body>
-    
-<form method="POST" autocomplete="off">
-    <div class="autocomplete-container">
-        <input 
-            type="text" 
-            name="movie" 
-            id="movie-input" 
-            placeholder="Search for a movie..." 
-            required
-        >
-        <div id="autocomplete-list">
-        </div>
-    </div>
-    <button type="submit">Show Results</button>
+
+<form method="POST" autocomplete="off" aria-label="Movie search">
+  <div class="autocomplete-container">
+    <input id="movie-input" name="movie" placeholder="Search for a movie..." required aria-autocomplete="list" aria-controls="autocomplete-list" autocomplete="off">
+    <div id="autocomplete-list" role="listbox"></div>
+  </div>
+  <button type="submit">Show Results</button>
 </form>
 
 <script>
-    const movieList = [
-        {% for movie in movie_list %}
-            "{{ movie }}",
-        {% endfor %}
-    ];
-
-    const input = document.getElementById("movie-input");
-    const autocompleteList = document.getElementById("autocomplete-list");
-
-    input.addEventListener("input", function() {
-        const val = this.value.toLowerCase();
-        autocompleteList.innerHTML = "";
-        if (!val) { autocompleteList.style.display = "none"; return; }
-        const filtered = movieList.filter(m => m.toLowerCase().includes(val));
-        if (filtered.length === 0) { autocompleteList.style.display = "none"; return; }
-        filtered.forEach(movie => {
-            const div = document.createElement("div");
-            div.textContent = movie;
-            div.style.padding = "8px 12px";
-            div.style.cursor = "pointer";
-            div.style.color = "#fff";
-            div.addEventListener("click", () => {
-                input.value = movie;
-                autocompleteList.innerHTML = "";
-                autocompleteList.style.display = "none";
-            });
-            div.addEventListener("mouseover", () => div.style.background = "rgba(75,123,255,0.3)");
-            div.addEventListener("mouseout", () => div.style.background = "transparent");
-            autocompleteList.appendChild(div);
-        });
-        autocompleteList.style.display = "block";
-    });
-    document.addEventListener("click", function(e) {
-        if (!e.target.closest(".autocomplete-container")) {
-            autocompleteList.style.display = "none";
-        }
-    });
+const movieList = [
+  {% for movie in movie_list %}
+    "{{ movie|escape }}"{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+const input = document.getElementById('movie-input');
+const acList = document.getElementById('autocomplete-list');
+function closeAutocomplete(){ acList.innerHTML=''; acList.style.display='none'; }
+function renderSuggestions(filtered){
+  acList.innerHTML='';
+  filtered.forEach(movie=>{
+    const d=document.createElement('div');
+    d.textContent=movie;
+    d.addEventListener('pointerup',()=>{ input.value=movie; closeAutocomplete(); input.focus(); });
+    d.addEventListener('click',()=>{ input.value=movie; closeAutocomplete(); input.focus(); });
+    d.addEventListener('touchend',()=>{ input.value=movie; closeAutocomplete(); input.focus(); },{passive:true});
+    d.addEventListener('mouseover',()=>d.style.background='rgba(75,123,255,0.16)');
+    d.addEventListener('mouseout',()=>d.style.background='transparent');
+    acList.appendChild(d);
+  });
+  acList.style.display = filtered.length ? 'block' : 'none';
+}
+input.addEventListener('input', function(){
+  const val=this.value.trim().toLowerCase();
+  if(!val){ closeAutocomplete(); return; }
+  const filtered = movieList.filter(m => m.toLowerCase().includes(val));
+  if(!filtered.length){ closeAutocomplete(); return; }
+  renderSuggestions(filtered.slice(0,30));
+});
+document.addEventListener('pointerdown', e => { if(!e.target.closest('.autocomplete-container')) closeAutocomplete(); });
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.body.addEventListener('mousemove', (e) => {
-            const card = e.target.closest('.movie-card');
-            if (!card) return;
-
-            const rect = card.getBoundingClientRect();
-            const x = (e.clientX - rect.left) + 10; 
-            const y = (e.clientY - rect.top) + 10;
-            
-            card.style.setProperty('--mouse-x-glow', `${x}px`);
-            card.style.setProperty('--mouse-y-glow', `${y}px`);
-        });
-    });
+document.addEventListener('pointermove', (e)=>{
+  const card = e.target.closest('.movie-card');
+  if(!card) return;
+  const rect = card.getBoundingClientRect();
+  const x = (e.clientX - rect.left) + 10;
+  const y = (e.clientY - rect.top) + 10;
+  card.style.setProperty('--mouse-x-glow', `${x}px`);
+  card.style.setProperty('--mouse-y-glow', `${y}px`);
+});
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const carouselButtons = document.querySelectorAll('.carousel-btn');
-        
-        carouselButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const targetId = button.dataset.target;
-                const track = document.getElementById(targetId);
-                if (!track) return;
-                
-                const card = track.querySelector('.movie-card');
-                if (!card) return;
-                
-                const cardWidth = card.offsetWidth;
-                const cardMargin = parseInt(window.getComputedStyle(card).marginRight);
-                const containerWidth = track.parentElement.offsetWidth;
-                const scrollAmount = (Math.floor(containerWidth / (cardWidth + cardMargin)) || 1) * (cardWidth + cardMargin);
-
-                if (button.classList.contains('next')) {
-                    track.scrollLeft += scrollAmount;
-                } else {
-                    track.scrollLeft -= scrollAmount;
-                }
-            });
-        });
+document.addEventListener('DOMContentLoaded', ()=>{
+  // restored carousel direction (Next -> scroll right)
+  const carouselButtons = document.querySelectorAll('.carousel-btn');
+  carouselButtons.forEach(button => {
+    button.addEventListener('pointerup', (ev) => {
+      ev.preventDefault();
+      const targetId = button.dataset.target;
+      const track = document.getElementById(targetId);
+      if (!track) return;
+      const card = track.querySelector('.movie-card');
+      if (!card) return;
+      const cardStyle = window.getComputedStyle(card);
+      const cardWidth = card.offsetWidth;
+      const cardGap = parseInt(cardStyle.marginRight || 15, 10) || 15;
+      const containerWidth = track.parentElement.offsetWidth || window.innerWidth;
+      const visibleCount = Math.max(1, Math.floor(containerWidth / (cardWidth + cardGap)));
+      const scrollAmount = visibleCount * (cardWidth + cardGap);
+      if (button.classList.contains('next')) {
+        track.scrollLeft += scrollAmount;
+      } else {
+        track.scrollLeft -= scrollAmount;
+      }
     });
+    button.addEventListener('click', (ev) => { ev.preventDefault(); });
+  });
+
+  // modal open/close helpers (toggle body.modal-open)
+  const modal = document.getElementById('movie-modal');
+  const backdrop = document.getElementById('movie-modal-backdrop');
+  const closeBtn = document.getElementById('movie-modal-close');
+
+  function openModal() {
+    if (!modal) return;
+    modal.style.display = 'block';
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+  function closeModal() {
+    if (!modal) return;
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+  }
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (backdrop) backdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  // hover attach (pointer-aware)
+  function attachHoverEffectsToCards() {
+    const cards = document.querySelectorAll('.movie-card');
+    cards.forEach(card => {
+      if (card.dataset._hoverAttached) return;
+      card.dataset._hoverAttached = '1';
+      card.addEventListener('pointerenter', (e) => {
+        if (e.pointerType && e.pointerType === 'touch') return;
+        card.classList.add('hovered');
+      });
+      card.addEventListener('pointerleave', (e) => {
+        if (e.pointerType && e.pointerType === 'touch') return;
+        card.classList.remove('hovered');
+      });
+      card.addEventListener('pointerdown', (e) => {
+        if (e.pointerType && e.pointerType !== 'touch') return;
+        card.classList.add('hovered');
+        window.setTimeout(() => card.classList.remove('hovered'), 400);
+      });
+      card.addEventListener('pointermove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = Math.round(e.clientX - rect.left);
+        const y = Math.round(e.clientY - rect.top);
+        const clampX = Math.max(0, Math.min(rect.width, x));
+        const clampY = Math.max(0, Math.min(rect.height, y));
+        card.style.setProperty('--mouse-x-glow', `${clampX}px`);
+        card.style.setProperty('--mouse-y-glow', `${clampY}px`);
+      });
+    });
+  }
+  // attach hover effects and re-attach if cards are dynamically re-rendered
+  attachHoverEffectsToCards();
+  window.refreshMovieCardHover = attachHoverEffectsToCards;
+});
 </script>
 
-    
 {% if recommendations %}
-        
-        <div class="go-back-container">
-            <a href="/" class="go-back-btn">&larr; Go Back to Home</a>
+  <div class="go-back-container"><a href="/" class="go-back-btn">&larr; Go Back to Home</a></div>
+  {% if searched_movie_details %}
+    <h2>You Searched For</h2>
+    <div class="movies" style="justify-content:center;">
+      <div class="movie-card js-movie-card" data-movie-id="{{ searched_movie_details.movie_id }}" data-title="{{ searched_movie_details.title }}" style="opacity:1; transform:none; animation:none;">
+        <img loading="lazy" src="{{ searched_movie_details.poster }}" alt="{{ searched_movie_details.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+        <div class="title-overlay">{{ searched_movie_details.title }}</div>
+      </div>
+    </div>
+  {% endif %}
+  <h2>Top 5 Recommendations for "{{ selected_movie }}"</h2>
+  <div class="movies">
+    {% for rec in recommendations %}
+      <div class="movie-card js-movie-card" data-movie-id="{{ rec.movie_id }}" data-title="{{ rec.title }}">
+        <img loading="lazy" src="{{ rec.poster }}" alt="{{ rec.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+        <div class="title-overlay">{{ rec.title }}</div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  {% if top_rated %}
+    <h2>Top Rated Movies</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" data-target="carousel-top-rated" aria-label="Previous">&#8249;</button>
+      <div class="carousel-container">
+        <div class="carousel-track" id="carousel-top-rated">
+          {% for movie in top_rated %}
+            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+              <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+              <div class="title-overlay">{{ movie.title }}</div>
+            </div>
+          {% endfor %}
         </div>
-        
-        {% if searched_movie_details %}
-            <h2>You Searched For</h2>
-            <div class="search-result-container">
-                <div class="movie-card js-movie-card" data-movie-id="{{ searched_movie_details.movie_id }}" data-title="{{ searched_movie_details.title }}" style="opacity: 1; transform: none; animation: none;">
-                    <img src="{{ searched_movie_details.poster }}" alt="{{ searched_movie_details.title }}">
-                    <div class="title-overlay">{{ searched_movie_details.title }}</div>
-                </div>
+      </div>
+      <button class="carousel-btn next" data-target="carousel-top-rated" aria-label="Next">&#8250;</button>
+    </div>
+  {% endif %}
+  {% if action_movies %}
+    <h2>Action</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" data-target="carousel-action" aria-label="Previous">&#8249;</button>
+      <div class="carousel-container">
+        <div class="carousel-track" id="carousel-action">
+          {% for movie in action_movies %}
+            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+              <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+              <div class="title-overlay">{{ movie.title }}</div>
             </div>
-        {% endif %}
-
-        <h2>Top 5 Recommendations for "{{ selected_movie }}"</h2>
-        <div class="movies">
-            {% for rec in recommendations %}
-                <div class="movie-card js-movie-card" data-movie-id="{{ rec.movie_id }}" data-title="{{ rec.title }}">
-                    <img src="{{ rec.poster }}" alt="{{ rec.title }}">
-                    <div class="title-overlay">{{ rec.title }}</div>
-                </div>
-            {% endfor %}
+          {% endfor %}
         </div>
-
-    {% else %}
-
-        {% if top_rated %}
-            <h2>Top Rated Movies</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-top-rated">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-top-rated">
-                        {% for movie in top_rated %}
-                            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div class="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-top-rated">&#8250;</button>
+      </div>
+      <button class="carousel-btn next" data-target="carousel-action" aria-label="Next">&#8250;</button>
+    </div>
+  {% endif %}
+  {% if comedy_movies %}
+    <h2>Comedy</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" data-target="carousel-comedy" aria-label="Previous">&#8249;</button>
+      <div class="carousel-container">
+        <div class="carousel-track" id="carousel-comedy">
+          {% for movie in comedy_movies %}
+            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+              <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+              <div class="title-overlay">{{ movie.title }}</div>
             </div>
-        {% endif %}
-
-        {% if action_movies %}
-            <h2>Action</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-action">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-action">
-                        {% for movie in action_movies %}
-                            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div class="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-action">&#8250;</button>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="carousel-btn next" data-target="carousel-comedy" aria-label="Next">&#8250;</button>
+    </div>
+  {% endif %}
+  {% if drama_movies %}
+    <h2>Drama</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" data-target="carousel-drama" aria-label="Previous">&#8249;</button>
+      <div class="carousel-container">
+        <div class="carousel-track" id="carousel-drama">
+          {% for movie in drama_movies %}
+            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+              <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+              <div class="title-overlay">{{ movie.title }}</div>
             </div>
-        {% endif %}
-
-        {% if comedy_movies %}
-            <h2>Comedy</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-comedy">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-comedy">
-                        {% for movie in comedy_movies %}
-                            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div classs="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-comedy">&#8250;</button>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="carousel-btn next" data-target="carousel-drama" aria-label="Next">&#8250;</button>
+    </div>
+  {% endif %}
+  {% if scifi_movies %}
+    <h2>Science Fiction</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" data-target="carousel-scifi" aria-label="Previous">&#8249;</button>
+      <div class="carousel-container">
+        <div class="carousel-track" id="carousel-scifi">
+          {% for movie in scifi_movies %}
+            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+              <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+              <div class="title-overlay">{{ movie.title }}</div>
             </div>
-        {% endif %}
-        
-        {% if drama_movies %}
-            <h2>Drama</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-drama">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-drama">
-                        {% for movie in drama_movies %}
-                            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div class="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-drama">&#8250;</button>
-            </div>
-        {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      <button class="carousel-btn next" data-target="carousel-scifi" aria-label="Next">&#8250;</button>
+    </div>
+  {% endif %}
+{% endif %}
 
-        {% if scifi_movies %}
-            <h2>Science Fiction</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-scifi">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-scifi">
-                        {% for movie in scifi_movies %}
-                            <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div class="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-scifi">&#8250;</button>
-            </div>
-        {% endif %}
-
-    {% endif %}
-
-<!-- Movie Detail Modal -->
+<!-- Movie modal (extended) -->
 <div id="movie-modal" class="movie-modal" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="movie-modal-backdrop" id="movie-modal-backdrop"></div>
   <div class="movie-modal-content" role="document" aria-labelledby="movie-modal-title">
     <button class="movie-modal-close" id="movie-modal-close" aria-label="Close">×</button>
+
     <div class="movie-modal-body">
       <div class="movie-modal-poster">
-        <img id="modal-poster" src="https://placehold.co/500x750/333/FFFFFF?text=Loading..." alt="poster">
+        <img id="modal-poster" loading="lazy" src="https://placehold.co/500x750/333/FFFFFF?text=Loading..." alt="poster">
       </div>
       <div class="movie-modal-info">
         <h2 id="modal-title">Loading...</h2>
-        <div id="modal-meta">
-          <span id="modal-rating"></span>
-          <span id="modal-runtime"></span>
-          <span id="modal-release"></span>
-        </div>
+        <div id="modal-meta"><span id="modal-rating"></span><span id="modal-runtime"></span><span id="modal-release"></span></div>
+        <div class="providers" id="modal-providers" aria-hidden="true"></div>
         <p id="modal-genres"></p>
         <p id="modal-overview"></p>
-        <h3>Top Cast</h3>
-        <div id="modal-cast" class="modal-cast-list"></div>
+
+        <!-- Trailer area -->
+        <div class="trailer-wrapper" id="trailer-wrapper" style="display:none;">
+          <button id="play-trailer" class="trailer-btn" type="button" style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,#4b7bff,#2663ff);border:none;color:#fff;font-weight:700;">▶ Play Trailer</button>
+          <div id="trailer-hint" style="font-size:12px;opacity:0.85;margin-top:8px;display:none;color:#dfe8ff;"></div>
+          <div id="trailer-container" style="display:none;margin-top:12px;"></div>
+        </div>
+
       </div>
     </div>
+
+    <div style="margin-top:12px;">
+      <h3>Top Cast</h3>
+      <div class="cast-grid" id="modal-cast"></div>
+    </div>
+
   </div>
 </div>
 
 <script>
 (function() {
-  const modal = document.getElementById('movie-modal');
-  const backdrop = document.getElementById('movie-modal-backdrop');
-  const closeBtn = document.getElementById('movie-modal-close');
-
   const posterEl = document.getElementById('modal-poster');
   const titleEl = document.getElementById('modal-title');
   const ratingEl = document.getElementById('modal-rating');
@@ -603,98 +472,210 @@
   const genresEl = document.getElementById('modal-genres');
   const overviewEl = document.getElementById('modal-overview');
   const castEl = document.getElementById('modal-cast');
+  const providersEl = document.getElementById('modal-providers');
 
-  function openModal() {
-    modal.style.display = 'block';
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+  const trailerWrapper = document.getElementById('trailer-wrapper');
+  const playTrailerBtn = document.getElementById('play-trailer');
+  const trailerContainer = document.getElementById('trailer-container');
+  const trailerHint = document.getElementById('trailer-hint');
+
+  (function(){
+    function pickBestVideo(videos = []) {
+      if (!Array.isArray(videos) || videos.length === 0) return null;
+      const vids = videos.map(v => ({
+        id: v.id,
+        name: v.name,
+        site: (v.site || '').toLowerCase(),
+        type: (v.type || '').toLowerCase(),
+        key: v.key,
+        official: Boolean(v.official)
+      })).filter(v => v.key);
+      if (!vids.length) return null;
+      const officialYouTubeTrailer = vids.find(v => v.site === 'youtube' && v.type === 'trailer' && v.official);
+      if (officialYouTubeTrailer) return officialYouTubeTrailer;
+      const ytTrailer = vids.find(v => v.site === 'youtube' && v.type === 'trailer');
+      if (ytTrailer) return ytTrailer;
+      const anyYouTube = vids.find(v => v.site === 'youtube');
+      if (anyYouTube) return anyYouTube;
+      return vids[0];
+    }
+
+    function embedYouTube(key) {
+      if (!key) return false;
+      try {
+        trailerContainer.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.className = 'trailer-iframe';
+        iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(key)}?rel=0&enablejsapi=1&autoplay=1`;
+        iframe.width = '100%';
+        iframe.height = '400';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+        trailerContainer.appendChild(iframe);
+        trailerContainer.style.display = 'block';
+        trailerHint.style.display = 'none';
+        return true;
+      } catch (e) {
+        console.warn('embedYouTube failed', e);
+        return false;
+      }
+    }
+
+    function openYouTubePage(key) {
+      if (!key) return;
+      const url = `https://www.youtube.com/watch?v=${encodeURIComponent(key)}`;
+      window.open(url, '_blank', 'noopener');
+    }
+
+    window.setupTrailerForModal = function(videosArray) {
+      console.log('TMDB videos:', videosArray);
+      trailerContainer.innerHTML = '';
+      trailerContainer.style.display = 'none';
+      trailerHint.style.display = 'none';
+      trailerWrapper.style.display = 'none';
+      playTrailerBtn.onclick = null;
+
+      const best = pickBestVideo(videosArray);
+      if (!best) {
+        trailerWrapper.style.display = 'none';
+        return;
+      }
+
+      trailerWrapper.style.display = 'block';
+      playTrailerBtn.onclick = function() {
+        if (best.site === 'youtube') {
+          const inserted = embedYouTube(best.key);
+          if (!inserted) {
+            openYouTubePage(best.key);
+            trailerHint.textContent = 'Trailer opened in a new tab (embedding blocked).';
+            trailerHint.style.display = 'block';
+          } else {
+            setTimeout(() => {
+              trailerHint.textContent = 'If the trailer did not autoplay, press Play inside the player.';
+              trailerHint.style.display = 'block';
+            }, 800);
+          }
+        } else {
+          const inserted = embedYouTube(best.key);
+          if (!inserted) {
+            openYouTubePage(best.key);
+            trailerHint.textContent = 'Trailer opened in a new tab (embedding blocked).';
+            trailerHint.style.display = 'block';
+          }
+        }
+      };
+    };
+  })();
+
+  async function loadMovieDetails(movieId, title) {
+    posterEl.src = "https://placehold.co/500x750/333/FFFFFF?text=Loading...";
+    titleEl.textContent = "Loading...";
+    ratingEl.textContent = "";
+    runtimeEl.textContent = "";
+    releaseEl.textContent = "";
+    genresEl.textContent = "";
+    overviewEl.textContent = "";
+    castEl.innerHTML = "";
+    providersEl.innerHTML = "";
+    trailerContainer.innerHTML = "";
+    trailerContainer.style.display = "none";
+    trailerWrapper.style.display = "none";
+    trailerHint.style.display = "none";
+
+    // open modal (modal control implemented elsewhere)
+    const modal = document.getElementById('movie-modal');
+    if (modal) {
+      modal.style.display = 'block';
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+    }
+
+    try {
+      const resp = await fetch('/movie_info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ movie_id: movieId || null, title: title, region: "IN" })
+      });
+      if (!resp.ok) throw new Error('Network');
+      const data = await resp.json();
+
+      posterEl.src = data.poster || "https://placehold.co/500x750/333/FFFFFF?text=No+Poster";
+      posterEl.alt = data.title || title || 'poster';
+      titleEl.textContent = data.title || title || 'Unknown';
+
+      ratingEl.textContent = data.rating ? `⭐ ${Number(data.rating).toFixed(1)}` : '';
+      runtimeEl.textContent = data.runtime ? `• ${data.runtime} min` : '';
+      releaseEl.textContent = data.release_date ? `• ${data.release_date}` : '';
+
+      genresEl.textContent = (data.genres && data.genres.length) ? data.genres.join(', ') : '';
+      overviewEl.textContent = data.overview || 'No description available.';
+
+      providersEl.innerHTML = "";
+      if (Array.isArray(data.providers) && data.providers.length) {
+        providersEl.setAttribute('aria-hidden','false');
+        data.providers.slice(0,8).forEach(p => {
+          const span = document.createElement('span'); span.className='provider-badge';
+          const img = document.createElement('img'); img.src = p.logo_path || 'https://placehold.co/92x92/FFFFFF/000?text=?'; img.alt = p.provider_name || '';
+          const lbl = document.createElement('div'); lbl.textContent = p.provider_name || ''; lbl.style.fontSize='12px'; lbl.style.opacity=0.9;
+          span.appendChild(img); span.appendChild(lbl); providersEl.appendChild(span);
+        });
+      } else {
+        providersEl.setAttribute('aria-hidden','true');
+      }
+
+      castEl.innerHTML = "";
+      if (Array.isArray(data.cast) && data.cast.length) {
+        data.cast.forEach(c => {
+          const card = document.createElement('div'); card.className = 'cast-card';
+          const img = document.createElement('img'); img.src = c.profile || 'https://placehold.co/185x278/333/FFFFFF?text=No+Image'; img.alt = c.name || '';
+          img.onerror = function(){ this.onerror=null; this.src='https://placehold.co/185x278/333/FFFFFF?text=No+Image'; }
+          const nm = document.createElement('div'); nm.textContent = c.name || ''; nm.style.fontWeight='600'; nm.style.fontSize='13px';
+          const ch = document.createElement('div'); ch.textContent = c.character ? c.character : ''; ch.style.fontSize='12px'; ch.style.opacity=0.9;
+          card.appendChild(img); card.appendChild(nm); card.appendChild(ch); castEl.appendChild(card);
+        });
+      } else {
+        castEl.innerHTML = '<div style="color:#ddd">No cast info available.</div>';
+      }
+
+      // setup trailer
+      if (window.setupTrailerForModal) window.setupTrailerForModal(data.videos || []);
+
+    } catch (err) {
+      console.error("Failed to load movie details:", err);
+      titleEl.textContent = title || 'Details Unavailable';
+      overviewEl.textContent = 'Movie details could not be loaded.';
+      posterEl.src = "https://placehold.co/500x750/333/FFFFFF?text=No+Poster";
+    }
   }
-  function closeModal() {
-    modal.style.display = 'none';
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }
 
-  closeBtn.addEventListener('click', closeModal);
-  backdrop.addEventListener('click', closeModal);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
-  });
-
+  // Attach listeners to cards (and expose function to re-attach)
   function attachCardListeners() {
     const cards = document.querySelectorAll('.js-movie-card');
     cards.forEach(card => {
       if (card.dataset._movieListenerAttached) return;
       card.dataset._movieListenerAttached = '1';
-
-      card.addEventListener('click', async () => {
+      card.addEventListener('click', () => {
         const movieId = card.dataset.movieId || null;
         const title = card.dataset.title || card.querySelector('.title-overlay')?.textContent?.trim() || '';
-
-        posterEl.src = "https://placehold.co/500x750/333/FFFFFF?text=Loading...";
-        titleEl.textContent = "Loading...";
-        ratingEl.textContent = "";
-        runtimeEl.textContent = "";
-        releaseEl.textContent = "";
-        genresEl.textContent = "";
-        overviewEl.textContent = "";
-        castEl.innerHTML = "";
-
-        openModal();
-
-        try {
-          const resp = await fetch('/movie_info', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ movie_id: movieId || null, title: title })
-          });
-          if (!resp.ok) throw new Error('Network response not ok');
-          const data = await resp.json();
-
-          posterEl.src = data.poster || "https://placehold.co/500x750/333/FFFFFF?text=No+Poster";
-          posterEl.alt = data.title || title || 'poster';
-          titleEl.textContent = data.title || title || 'Unknown';
-          ratingEl.textContent = data.rating ? `⭐ ${Number(data.rating).toFixed(1)}` : '';
-          runtimeEl.textContent = data.runtime ? `• ${data.runtime} min` : '';
-          releaseEl.textContent = data.release_date ? `• ${data.release_date}` : '';
-          genresEl.textContent = (data.genres && data.genres.length) ? data.genres.join(', ') : '';
-          overviewEl.textContent = data.overview || 'No description available.';
-
-          if (Array.isArray(data.cast) && data.cast.length) {
-            castEl.innerHTML = '';
-            data.cast.forEach(c => {
-              const div = document.createElement('div');
-              div.className = 'cast-item';
-              const img = document.createElement('img');
-              img.src = c.profile || 'https://placehold.co/185x278/333/FFFFFF?text=No+Image';
-              img.alt = c.name || '';
-              img.onerror = function(){ this.onerror=null;this.src='https://placehold.co/185x278/333/FFFFFF?text=No+Image'; }
-              const nm = document.createElement('div');
-              nm.textContent = c.name || '';
-              const chr = document.createElement('div');
-              chr.textContent = c.character ? `as ${c.character}` : '';
-              chr.style.opacity = 0.85;
-              chr.style.fontSize = '12px';
-              div.appendChild(img);
-              div.appendChild(nm);
-              div.appendChild(chr);
-              castEl.appendChild(div);
-            });
-          } else {
-            castEl.innerHTML = '<div style="color:#ddd">No cast info available.</div>';
-          }
-
-        } catch (err) {
-          console.error("Failed to load movie details:", err);
-          titleEl.textContent = title || 'Details Unavailable';
-          overviewEl.textContent = 'Movie details could not be loaded.';
-          posterEl.src = "https://placehold.co/500x750/333/FFFFFF?text=No+Poster";
-        }
+        loadMovieDetails(movieId, title);
       });
     });
   }
-
   document.addEventListener('DOMContentLoaded', attachCardListeners);
+
+  // modal close behavior (global)
+  document.addEventListener('click', (e) => {
+    if (e.target.matches('#movie-modal-close') || e.target.matches('#movie-modal-backdrop')) {
+      const modal = document.getElementById('movie-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+        const trailerContainer = document.getElementById('trailer-container');
+        if (trailerContainer) trailerContainer.innerHTML = '';
+      }
+    }
+  });
 })();
 </script>
 
