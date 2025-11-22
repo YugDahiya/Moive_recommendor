@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Movie Recommender System</title>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
         /* ===== BODY ===== */
+        :root {
+            --bg-1: #0d0d3b;
+            --bg-2: #00002a;
+            --accent: rgba(75, 123, 255, 0.8);
+            --card-bg: rgba(28, 28, 28, 0.9);
+        }
+        html,body { height: 100%; }
         body {
             font-family: 'Poppins', sans-serif;
             color: #fff;
@@ -16,530 +23,510 @@
             padding: 0;
             text-align: center;
             overflow-x: hidden;
-            background-color: #00002a; 
-            background-image: radial-gradient(
-                circle at center,
-                #0d0d3b 0%, 
-                #00002a 70%
-            );
+            background-color: var(--bg-2);
+            background-image: radial-gradient(circle at center, var(--bg-1) 0%, var(--bg-2) 70%);
             min-height: 100vh;
-        }
-        
-        /* ===== MODIFIED SEARCH FORM ===== */
-        form {
-            margin: 50px auto 35px auto;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            gap: 10px; 
-            width: auto; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .autocomplete-container {
-            position: relative;
-            width: 360px;
+        /* ===== SEARCH ===== */
+        form {
+            margin: 40px auto 28px auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            width: 94%;
+            max-width: 880px;
         }
-        
+        .autocomplete-container { position: relative; width: 100%; max-width: 560px; }
         #movie-input {
-            padding: 12px;
+            padding: 12px 14px;
             width: 100%;
-            border-radius: 8px;
+            border-radius: 10px;
             border: none;
             outline: none;
             font-size: 15px;
-            background-color: rgba(34, 34, 34, 0.8);
+            background-color: rgba(34,34,34,0.88);
             color: #fff;
-            box-shadow: 0 0 10px rgba(75, 123, 255, 0.2);
-            height: 46px;
+            box-shadow: 0 0 10px rgba(75,123,255,0.12);
+            height: 48px;
             box-sizing: border-box;
+            touch-action: manipulation;
         }
-        
         form button {
-            display: block;
             background-color: #4b7bff;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 10px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 12px 20px;
+            transition: all .18s;
+            padding: 12px 18px;
             font-size: 15px;
-            height: 46px;
+            height: 48px;
             box-sizing: border-box;
+            touch-action: manipulation;
         }
-        form button:hover {
-            background-color: #004dff;
-            box-shadow: 0 0 15px #004dff;
-        }
-
+        form button:active { transform: translateY(1px); }
         #autocomplete-list {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
-            background-color: rgba(28,28,28,0.95);
-            max-height: 200px;
+            background-color: rgba(22,22,22,0.98);
+            max-height: 220px;
             overflow-y: auto;
-            border-radius: 0 0 8px 8px;
-            z-index: 999;
+            border-radius: 0 0 10px 10px;
+            z-index: 9999;
             display: none;
             text-align: left;
+            -webkit-overflow-scrolling: touch;
         }
-        
-        /* ===== NEW: GO BACK BUTTON ===== */
-        .go-back-container {
-            max-width: 1400px;
-            margin: 30px auto -30px auto; /* Position it above the results */
-            padding: 0 20px;
-            box-sizing: border-box;
-            text-align: left;
-        }
+        #autocomplete-list div { padding: 10px 12px; cursor: pointer; color: #fff; }
 
-        .go-back-btn {
-            display: inline-block;
-            padding: 10px 18px;
-            background-color: rgba(75, 123, 255, 0.2);
+        /* ===== HEADINGS & LAYOUT ===== */
+        h2 {
+            margin-top: 28px;
+            margin-bottom: -18px;
             color: #fff;
-            border: 1px solid rgba(75, 123, 255, 0.4);
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .go-back-btn:hover {
-            background-color: rgba(75, 123, 255, 0.5);
-            box-shadow: 0 0 15px rgba(75, 123, 255, 0.5);
-        }
-
-        /* ===== MODIFIED H2 HEADINGS ===== */
-        h2 { 
-            margin-top: 35px; 
-            margin-bottom: -30px; /* Pull the carousel closer */
-            color: #ffffff; /* White color */
-            text-shadow: none; /* No glow */
-            text-align: left; /* Aligned left */
-            
-            /* Align with grid/carousel */
-            max-width: 1400px;
+            text-align: left;
+            max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
-            padding-left: 20px; 
+            padding-left: 20px;
             box-sizing: border-box;
         }
+        .go-back-container { max-width:1200px; margin:18px auto; padding:0 20px; text-align:left; }
+        .go-back-btn { padding:8px 14px; border-radius:8px; background: rgba(75,123,255,0.12); border:1px solid rgba(75,123,255,0.18); color:#fff; text-decoration:none; font-weight:600; touch-action: manipulation; }
 
-        /* ===== MOVIES GRID (For Recommendations Page) ===== */
+        /* ===== GRID / CAROUSEL ===== */
         .movies {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 15px; 
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
             justify-items: center;
-            margin: 50px auto;
-            max-width: 1400px;
-            padding: 0 20px;
+            margin: 36px auto;
+            max-width: 1200px;
+            padding: 0 18px;
         }
+        .carousel-wrapper { position: relative; max-width: 1200px; margin: 36px auto; padding: 0 30px; box-sizing: border-box; }
+        .carousel-container { overflow: hidden; }
+        .carousel-track { display:flex; gap: 12px; overflow-x:auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding: 18px 0; }
+        .carousel-track::-webkit-scrollbar { display:none; }
 
-        /* ===== NEW: CAROUSEL STYLES ===== */
-        .carousel-wrapper {
-            position: relative;
-            max-width: 1400px;
-            margin: 50px auto;
-            padding: 0 40px; /* Space for buttons */
-            box-sizing: border-box;
-        }
-        
-        .carousel-container {
-            overflow: hidden;
-        }
-        
-        .carousel-track {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-            margin: 0;
-            padding: 20px 0;
-            
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
-        }
-        
-        .carousel-track::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .carousel-track .movie-card {
-            flex: 0 0 240px; /* Card width */
-            margin-right: 15px; /* Gap */
-            transform: none; /* No fade-up animation */
-            opacity: 1;
-            animation: none;
-        }
-        
         .carousel-btn {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background-color: rgba(0,0,0,0.5);
-            color: white;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
             border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            font-weight: bold;
+            border-radius: 999px;
+            width: 48px;
+            height: 48px;
+            font-size: 22px;
+            font-weight: 700;
             cursor: pointer;
             z-index: 20;
-            transition: background-color 0.3s ease;
+            touch-action: manipulation;
         }
-        
-        .carousel-btn:hover {
-            background-color: rgba(75, 123, 255, 0.8);
-        }
-        
-        .carousel-btn.prev {
-            left: 0px;
-        }
-        
-        .carousel-btn.next {
-            right: 0px;
-        }
-        /* ===== END CAROUSEL STYLES ===== */
+        .carousel-btn:active { transform: translateY(-50%) scale(.98); }
+        .carousel-btn.prev { left: 8px; }
+        .carousel-btn.next { right: 8px; }
 
-        /* ===== NEW: SEARCH RESULT CONTAINER ===== */
-        .search-result-container {
-            display: flex;
-            justify-content: center;
-            margin: 50px auto;
-        }
-
+        /* ===== MOVIE CARD ===== */
         .movie-card {
-            width: 240px;
-            height: 360px;
-            background-color: rgba(28, 28, 28, 0.9);
-            border-radius: 15px;
+            width: 180px;
+            height: 270px;
+            background: var(--card-bg);
+            border-radius: 12px;
             position: relative;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s ease 0.3s;
+            overflow: hidden;
+            transition: transform .18s ease, box-shadow .18s ease;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
+            cursor: pointer;
         }
-        
-        /* FadeUp animation only for recommendations grid */
-        .movies .movie-card {
-            transform: translateY(20px);
-            opacity: 0;
-            animation: fadeUp 0.6s forwards;
-        }
+        .movie-card:active { transform: scale(.99); }
+        .movie-card img { width:100%; height:100%; object-fit: cover; display:block; border-radius: 12px; }
+        .title-overlay { position:absolute; bottom:0; left:0; width:100%; padding: 10px; box-sizing:border-box; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%); text-align:left; font-weight:600; font-size:14px; color:#fff; }
 
-        {% for i in range(12) %}
-        .movies .movie-card:nth-child({{ i+1 }}) { animation-delay: {{ i*0.1 }}s; }
-        {% endfor %}
+        /* ===== MODAL ===== */
+        .movie-modal { display:none; position:fixed; inset:0; z-index:3000; }
+        .movie-modal-backdrop { position:absolute; inset:0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+        .movie-modal-content { position: relative; width: min(1000px, 96%); margin: 6vh auto; background: rgba(10,10,12,0.98); border-radius: 12px; padding: 16px; box-shadow: 0 18px 60px rgba(0,0,0,0.6); }
+        .movie-modal-close { position:absolute; right:12px; top:8px; background:transparent; border:none; color:#fff; font-size:28px; cursor:pointer; padding:8px; border-radius:8px; touch-action: manipulation; }
+        .movie-modal-body { display:flex; gap: 18px; align-items:flex-start; }
+        .movie-modal-poster img { width:260px; height:390px; object-fit:cover; border-radius:10px; display:block; }
+        .movie-modal-info { text-align:left; color:#fff; flex:1; }
+        #modal-meta span { margin-right: 10px; color:#dfe8ff; opacity:0.95; font-size:14px; }
+        .modal-cast-list { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
 
-        
-        /* --- HOVER EFFECT (SOFT BLUE BACKGROUND GLOW) --- */
-        .movie-card::after {
-            content: '';
-            position: absolute;
-            z-index: -1; 
-            top: -10px; 
-            left: -10px;
-            width: calc(100% + 20px);
-            height: calc(100% + 20px);
-            background: radial-gradient(
-                circle at var(--mouse-x-glow) var(--mouse-y-glow),
-                rgba(75, 123, 255, 0.7) 0%, /* Blue glow */
-                transparent 30%
-            );
-            filter: blur(15px);
-            border-radius: 15px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        /* mobile changes */
+        @media (max-width: 820px) {
+            .movie-card { width:160px; height:240px; }
+            .movie-modal-body { flex-direction: column; align-items:center; }
+            .movie-modal-poster img { width:200px; height:300px; }
         }
-        
-        .movie-card:hover {
-            transform: scale(1.09);
-            z-index: 10;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s ease;
+        @media (max-width: 420px) {
+            .carousel-btn { width:44px; height:44px; font-size:20px; }
+            .movie-card { width:140px; height:210px; }
+            .movie-modal-content { margin: 2vh auto; padding:12px; border-radius:8px; width:98%; height: 100vh; box-sizing:border-box; overflow:auto; }
+            .movie-modal-poster img { width:160px; height:240px; }
         }
-        
-        .movie-card:hover::after {
-            opacity: 1;
-        }
-        /* --- END HOVER EFFECT --- */
-        
-        .movie-card img { 
-            width: 100%; 
-            height: 100%;
-            object-fit: cover; 
-            position: relative;
-            z-index: 2;
-            border-radius: 15px;
-        }
-        
-        .title-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 15px 10px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 3;
-            text-align: left;
-            box-sizing: border-box;
-            transition: opacity 0.3s ease;
-            border-radius: 0 0 15px 15px;
-        }
+        /* ensure big tap targets on very small phones */
+        .carousel-btn, .movie-modal-close, form button { min-width:44px; min-height:44px; }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .movie-card { width: 200px; height: 300px; }
-            .carousel-track .movie-card { flex-basis: 200px; }
-            .movies { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-        }
-        
-        @media (max-width: 480px) {
-            form { width: 90%; flex-direction: column; }
-            .autocomplete-container { width: 100%; }
-            form button { width: 100%; }
-            
-            .movie-card { width: 160px; height: 240px; }
-            .carousel-track .movie-card { flex-basis: 160px; }
-            .movies { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
-        }
     </style>
 </head>
-
 <body>
-    
-<form method="POST" autocomplete="off">
+<form method="POST" autocomplete="off" aria-label="Movie search">
     <div class="autocomplete-container">
-        <input 
-            type="text" 
-            name="movie" 
-            id="movie-input" 
-            placeholder="Search for a movie..." 
+        <input
+            id="movie-input"
+            name="movie"
+            placeholder="Search for a movie..."
             required
-        >
-        <div id="autocomplete-list">
-        </div>
+            aria-autocomplete="list"
+            aria-controls="autocomplete-list"
+            autocomplete="off"
+        />
+        <div id="autocomplete-list" role="listbox"></div>
     </div>
     <button type="submit">Show Results</button>
 </form>
 
 <script>
-    const movieList = [
-        {% for movie in movie_list %}
-            "{{ movie }}",
-        {% endfor %}
-    ];
+/* Autocomplete list (same behavior but with safer JS for mobile) */
+const movieList = [
+    {% for movie in movie_list %}
+        "{{ movie|escape }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
 
-    const input = document.getElementById("movie-input");
-    const autocompleteList = document.getElementById("autocomplete-list");
+const input = document.getElementById('movie-input');
+const acList = document.getElementById('autocomplete-list');
 
-    input.addEventListener("input", function() {
-        const val = this.value.toLowerCase();
-        autocompleteList.innerHTML = "";
-        if (!val) { autocompleteList.style.display = "none"; return; }
-        const filtered = movieList.filter(m => m.toLowerCase().includes(val));
-        if (filtered.length === 0) { autocompleteList.style.display = "none"; return; }
-        filtered.forEach(movie => {
-            const div = document.createElement("div");
-            div.textContent = movie;
-            div.style.padding = "8px 12px";
-            div.style.cursor = "pointer";
-            div.style.color = "#fff";
-            div.addEventListener("click", () => {
-                input.value = movie;
-                autocompleteList.innerHTML = "";
-                autocompleteList.style.display = "none";
-            });
-            div.addEventListener("mouseover", () => div.style.background = "rgba(75,123,255,0.3)");
-            div.addEventListener("mouseout", () => div.style.background = "transparent");
-            autocompleteList.appendChild(div);
-        });
-        autocompleteList.style.display = "block";
+let focusedIndex = -1;
+
+function closeAutocomplete(){
+    acList.innerHTML = '';
+    acList.style.display = 'none';
+    focusedIndex = -1;
+}
+
+function renderSuggestions(filtered) {
+    acList.innerHTML = '';
+    filtered.forEach((movie, idx) => {
+        const div = document.createElement('div');
+        div.textContent = movie;
+        div.setAttribute('role', 'option');
+        div.dataset.idx = idx;
+        div.addEventListener('pointerup', () => { input.value = movie; closeAutocomplete(); input.focus(); });
+        div.addEventListener('click', () => { input.value = movie; closeAutocomplete(); input.focus(); });
+        div.addEventListener('touchend', () => { input.value = movie; closeAutocomplete(); input.focus(); }, {passive:true});
+        div.addEventListener('mouseover', () => div.style.background = 'rgba(75,123,255,0.16)');
+        div.addEventListener('mouseout', () => div.style.background = 'transparent');
+        acList.appendChild(div);
     });
-    document.addEventListener("click", function(e) {
-        if (!e.target.closest(".autocomplete-container")) {
-            autocompleteList.style.display = "none";
-        }
-    });
+    acList.style.display = filtered.length ? 'block' : 'none';
+}
+
+input.addEventListener('input', function(){
+    const val = this.value.trim().toLowerCase();
+    if(!val){ closeAutocomplete(); return; }
+    const filtered = movieList.filter(m => m.toLowerCase().includes(val));
+    if(!filtered.length){ closeAutocomplete(); return; }
+    renderSuggestions(filtered.slice(0,30));
+});
+
+document.addEventListener('pointerdown', (e)=>{
+    if(!e.target.closest('.autocomplete-container')) closeAutocomplete();
+});
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.body.addEventListener('mousemove', (e) => {
-            const card = e.target.closest('.movie-card');
-            if (!card) return;
-
-            const rect = card.getBoundingClientRect();
-            const x = (e.clientX - rect.left) + 10; 
-            const y = (e.clientY - rect.top) + 10;
-            
-            card.style.setProperty('--mouse-x-glow', `${x}px`);
-            card.style.setProperty('--mouse-y-glow', `${y}px`);
-        });
-    });
+/* Mouse glow on cards (unchanged) */
+document.addEventListener('pointermove', (e) => {
+    const card = e.target.closest('.movie-card');
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) + 10;
+    const y = (e.clientY - rect.top) + 10;
+    card.style.setProperty('--mouse-x-glow', `${x}px`);
+    card.style.setProperty('--mouse-y-glow', `${y}px`);
+});
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const carouselButtons = document.querySelectorAll('.carousel-btn');
-        
-        carouselButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const targetId = button.dataset.target;
-                const track = document.getElementById(targetId);
-                if (!track) return;
-                
-                const card = track.querySelector('.movie-card');
-                if (!card) return;
-                
-                const cardWidth = card.offsetWidth;
-                const cardMargin = parseInt(window.getComputedStyle(card).marginRight);
-                const containerWidth = track.parentElement.offsetWidth;
-                const scrollAmount = (Math.floor(containerWidth / (cardWidth + cardMargin)) || 1) * (cardWidth + cardMargin);
-
-                if (button.classList.contains('next')) {
-                    track.scrollLeft += scrollAmount;
-                } else {
-                    track.scrollLeft -= scrollAmount;
-                }
-            });
-        });
+/* Carousel buttons scroll; supports touch naturally due to overflow-x:auto */
+document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.carousel-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('pointerup', handleCarouselBtn);
+        btn.addEventListener('click', handleCarouselBtn);
     });
+
+    function handleCarouselBtn(e){
+        e.preventDefault();
+        const btn = e.currentTarget;
+        const targetId = btn.dataset.target;
+        const track = document.getElementById(targetId);
+        if(!track) return;
+        const card = track.querySelector('.movie-card');
+        if(!card) return;
+        const cardWidth = card.offsetWidth + parseInt(window.getComputedStyle(card).marginRight || 12);
+        const containerWidth = track.parentElement.offsetWidth;
+        const visibleCount = Math.floor(containerWidth / cardWidth) || 1;
+        const scrollAmount = visibleCount * cardWidth;
+        if(btn.classList.contains('next')) track.scrollLeft += scrollAmount;
+        else track.scrollLeft -= scrollAmount;
+    }
+});
 </script>
 
-    
 {% if recommendations %}
-        
-        <div class="go-back-container">
-            <a href="/" class="go-back-btn">&larr; Go Back to Home</a>
+    <div class="go-back-container"><a href="/" class="go-back-btn">&larr; Go Back to Home</a></div>
+
+    {% if searched_movie_details %}
+        <h2>You Searched For</h2>
+        <div class="movies" style="justify-content:center;">
+            <div class="movie-card js-movie-card" data-movie-id="{{ searched_movie_details.movie_id }}" data-title="{{ searched_movie_details.title }}" style="opacity:1; transform:none;">
+                <img loading="lazy" src="{{ searched_movie_details.poster }}" alt="{{ searched_movie_details.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+                <div class="title-overlay">{{ searched_movie_details.title }}</div>
+            </div>
         </div>
-        
-        {% if searched_movie_details %}
-            <h2>You Searched For</h2>
-            <div class="search-result-container">
-                <div class="movie-card" style="opacity: 1; transform: none; animation: none;">
-                    <img src="{{ searched_movie_details.poster }}" alt="{{ searched_movie_details.title }}">
-                    <div class="title-overlay">{{ searched_movie_details.title }}</div>
-                </div>
-            </div>
-        {% endif %}
-
-        <h2>Top 5 Recommendations for "{{ selected_movie }}"</h2>
-        <div class="movies">
-            {% for rec in recommendations %}
-                <div class="movie-card">
-                    <img src="{{ rec.poster }}" alt="{{ rec.title }}">
-                    <div class="title-overlay">{{ rec.title }}</div>
-                </div>
-            {% endfor %}
-        </div>
-
-    {% else %}
-        
-        {% if top_rated %}
-            <h2>Top Rated Movies</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-top-rated">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-top-rated">
-                        {% for movie in top_rated %}
-                            <div class="movie-card">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div class="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-top-rated">&#8250;</button>
-            </div>
-        {% endif %}
-
-        {% if action_movies %}
-            <h2>Action</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-action">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-action">
-                        {% for movie in action_movies %}
-                            <div class="movie-card">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div class="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-action">&#8250;</button>
-            </div>
-        {% endif %}
-
-        {% if comedy_movies %}
-            <h2>Comedy</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-comedy">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-comedy">
-                        {% for movie in comedy_movies %}
-                            <div class="movie-card">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div classs="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-comedy">&#8250;</button>
-            </div>
-        {% endif %}
-        
-        {% if drama_movies %}
-            <h2>Drama</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-drama">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-drama">
-                        {% for movie in drama_movies %}
-                            <div class="movie-card">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div class="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="carousel-btn next" data-target="carousel-drama">&#8250;</button>
-            </div>
-        {% endif %}
-
-        {% if scifi_movies %}
-            <h2>Science Fiction</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-target="carousel-scifi">&#8249;</button>
-                <div class="carousel-container">
-                    <div class="carousel-track" id="carousel-scifi">
-                        {% for movie in scifi_movies %}
-                            <div class="movie-card">
-                                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
-                                <div class="title-overlay">{{ movie.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button classs="carousel-btn next" data-target="carousel-scifi">&#8250;</button>
-            </div>
-        {% endif %}
-
     {% endif %}
+
+    <h2>Top 5 Recommendations for "{{ selected_movie }}"</h2>
+    <div class="movies">
+        {% for rec in recommendations %}
+            <div class="movie-card js-movie-card" data-movie-id="{{ rec.movie_id }}" data-title="{{ rec.title }}">
+                <img loading="lazy" src="{{ rec.poster }}" alt="{{ rec.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+                <div class="title-overlay">{{ rec.title }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+    {% if top_rated %}
+        <h2>Top Rated Movies</h2>
+        <div class="carousel-wrapper">
+            <button class="carousel-btn prev" data-target="carousel-top-rated" aria-label="Previous">&#8249;</button>
+            <div class="carousel-container">
+                <div class="carousel-track" id="carousel-top-rated">
+                    {% for movie in top_rated %}
+                        <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+                            <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+                            <div class="title-overlay">{{ movie.title }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="carousel-btn next" data-target="carousel-top-rated" aria-label="Next">&#8250;</button>
+        </div>
+    {% endif %}
+
+    {% if action_movies %}
+        <h2>Action</h2>
+        <div class="carousel-wrapper">
+            <button class="carousel-btn prev" data-target="carousel-action" aria-label="Previous">&#8249;</button>
+            <div class="carousel-container">
+                <div class="carousel-track" id="carousel-action">
+                    {% for movie in action_movies %}
+                        <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+                            <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+                            <div class="title-overlay">{{ movie.title }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="carousel-btn next" data-target="carousel-action" aria-label="Next">&#8250;</button>
+        </div>
+    {% endif %}
+
+    {% if comedy_movies %}
+        <h2>Comedy</h2>
+        <div class="carousel-wrapper">
+            <button class="carousel-btn prev" data-target="carousel-comedy" aria-label="Previous">&#8249;</button>
+            <div class="carousel-container">
+                <div class="carousel-track" id="carousel-comedy">
+                    {% for movie in comedy_movies %}
+                        <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+                            <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+                            <div class="title-overlay">{{ movie.title }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="carousel-btn next" data-target="carousel-comedy" aria-label="Next">&#8250;</button>
+        </div>
+    {% endif %}
+
+    {% if drama_movies %}
+        <h2>Drama</h2>
+        <div class="carousel-wrapper">
+            <button class="carousel-btn prev" data-target="carousel-drama" aria-label="Previous">&#8249;</button>
+            <div class="carousel-container">
+                <div class="carousel-track" id="carousel-drama">
+                    {% for movie in drama_movies %}
+                        <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+                            <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+                            <div class="title-overlay">{{ movie.title }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="carousel-btn next" data-target="carousel-drama" aria-label="Next">&#8250;</button>
+        </div>
+    {% endif %}
+
+    {% if scifi_movies %}
+        <h2>Science Fiction</h2>
+        <div class="carousel-wrapper">
+            <button class="carousel-btn prev" data-target="carousel-scifi" aria-label="Previous">&#8249;</button>
+            <div class="carousel-container">
+                <div class="carousel-track" id="carousel-scifi">
+                    {% for movie in scifi_movies %}
+                        <div class="movie-card js-movie-card" data-movie-id="{{ movie.movie_id }}" data-title="{{ movie.title }}">
+                            <img loading="lazy" src="{{ movie.poster }}" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='https://placehold.co/240x360/333/FFFFFF?text=No+Image'">
+                            <div class="title-overlay">{{ movie.title }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="carousel-btn next" data-target="carousel-scifi" aria-label="Next">&#8250;</button>
+        </div>
+    {% endif %}
+{% endif %}
+
+<!-- Movie Detail Modal -->
+<div id="movie-modal" class="movie-modal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="movie-modal-backdrop" id="movie-modal-backdrop"></div>
+  <div class="movie-modal-content" role="document" aria-labelledby="movie-modal-title">
+    <button class="movie-modal-close" id="movie-modal-close" aria-label="Close">×</button>
+    <div class="movie-modal-body">
+      <div class="movie-modal-poster">
+        <img id="modal-poster" loading="lazy" src="https://placehold.co/500x750/333/FFFFFF?text=Loading..." alt="poster">
+      </div>
+      <div class="movie-modal-info">
+        <h2 id="modal-title">Loading...</h2>
+        <div id="modal-meta">
+          <span id="modal-rating"></span>
+          <span id="modal-runtime"></span>
+          <span id="modal-release"></span>
+        </div>
+        <p id="modal-genres"></p>
+        <p id="modal-overview"></p>
+        <h3 style="margin-top:12px;">Top Cast</h3>
+        <div id="modal-cast" class="modal-cast-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Modal + movie-card touch-friendly handler */
+(function(){
+  const modal = document.getElementById('movie-modal');
+  const backdrop = document.getElementById('movie-modal-backdrop');
+  const closeBtn = document.getElementById('movie-modal-close');
+
+  const posterEl = document.getElementById('modal-poster');
+  const titleEl = document.getElementById('modal-title');
+  const ratingEl = document.getElementById('modal-rating');
+  const runtimeEl = document.getElementById('modal-runtime');
+  const releaseEl = document.getElementById('modal-release');
+  const genresEl = document.getElementById('modal-genres');
+  const overviewEl = document.getElementById('modal-overview');
+  const castEl = document.getElementById('modal-cast');
+
+  function openModal(){ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+  function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+
+  closeBtn.addEventListener('pointerup', closeModal);
+  backdrop.addEventListener('pointerup', closeModal);
+  closeBtn.addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+  // event delegation: handle taps anywhere on a .js-movie-card container
+  document.addEventListener('pointerup', handleCardPointer);
+  document.addEventListener('click', handleCardPointer); // fallback for older devices
+  document.addEventListener('touchend', handleCardPointer, {passive:true});
+
+  function handleCardPointer(e){
+    const card = e.target.closest('.js-movie-card');
+    if(!card) return;
+    // prevent double handling if pointer and click both fire
+    if(e.type === 'click' && (e.detail === 0)) return;
+    e.preventDefault();
+
+    const movieId = card.dataset.movieId || null;
+    const title = card.dataset.title || card.querySelector('.title-overlay')?.textContent?.trim() || '';
+
+    posterEl.src = "https://placehold.co/500x750/333/FFFFFF?text=Loading...";
+    titleEl.textContent = "Loading...";
+    ratingEl.textContent = "";
+    runtimeEl.textContent = "";
+    releaseEl.textContent = "";
+    genresEl.textContent = "";
+    overviewEl.textContent = "";
+    castEl.innerHTML = "";
+
+    openModal();
+
+    fetch('/movie_info', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ movie_id: movieId || null, title: title })
+    }).then(r => {
+      if(!r.ok) throw new Error('Network error');
+      return r.json();
+    }).then(data => {
+      posterEl.src = data.poster || 'https://placehold.co/500x750/333/FFFFFF?text=No+Poster';
+      posterEl.alt = data.title || title || 'poster';
+      titleEl.textContent = data.title || title || 'Unknown';
+      ratingEl.textContent = data.rating ? `⭐ ${Number(data.rating).toFixed(1)}` : '';
+      runtimeEl.textContent = data.runtime ? `• ${data.runtime} min` : '';
+      releaseEl.textContent = data.release_date ? `• ${data.release_date}` : '';
+      genresEl.textContent = (data.genres && data.genres.length) ? data.genres.join(', ') : '';
+      overviewEl.textContent = data.overview || 'No description available.';
+
+      if(Array.isArray(data.cast) && data.cast.length){
+        castEl.innerHTML = '';
+        data.cast.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'cast-item';
+          const img = document.createElement('img');
+          img.src = c.profile || 'https://placehold.co/185x278/333/FFFFFF?text=No+Image';
+          img.alt = c.name || '';
+          img.loading = 'lazy';
+          img.onerror = function(){ this.onerror=null; this.src='https://placehold.co/185x278/333/FFFFFF?text=No+Image'; }
+          const nm = document.createElement('div');
+          nm.textContent = c.name || '';
+          const chr = document.createElement('div');
+          chr.textContent = c.character ? `as ${c.character}` : '';
+          chr.style.opacity = 0.85;
+          chr.style.fontSize = '12px';
+          div.appendChild(img);
+          div.appendChild(nm);
+          div.appendChild(chr);
+          castEl.appendChild(div);
+        });
+      } else {
+        castEl.innerHTML = '<div style="color:#ddd">No cast info available.</div>';
+      }
+    }).catch(err => {
+      console.error('movie_info failed', err);
+      titleEl.textContent = title || 'Details unavailable';
+      overviewEl.textContent = 'Could not load movie details.';
+      posterEl.src = 'https://placehold.co/500x750/333/FFFFFF?text=No+Poster';
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
