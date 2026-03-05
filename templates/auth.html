@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HIVEMIND — {{ 'Sign Up' if mode == 'signup' else 'Sign In' }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080d12; --bg2:#0d1520; --bg3:#111e2e; --bg4:#162438;
+      --accent:#6caddf; --accent2:#1e85c8; --accent-hi:#98d0f5;
+      --glow:rgba(108,173,223,0.22); --glow-soft:rgba(108,173,223,0.08);
+      --text:#e8f0f8; --text-sub:#7a9ab8; --text-mute:#3d5570;
+      --border:rgba(108,173,223,0.10); --border-hi:rgba(108,173,223,0.30);
+      --error:#ef4444;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body {
+      font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      -webkit-font-smoothing:antialiased; padding:20px;
+    }
+    body::before {
+      content:''; position:fixed; inset:0;
+      background:radial-gradient(ellipse 70% 60% at 50% 0%, rgba(108,173,223,0.08) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .auth-box {
+      width:100%; max-width:420px;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:14px; padding:40px 36px;
+      box-shadow:0 40px 80px rgba(0,0,0,0.55);
+      animation:fadeUp 0.45s ease both; position:relative;
+    }
+    .auth-box::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,var(--accent2),var(--accent),var(--accent-hi),var(--accent));
+      border-radius:14px 14px 0 0;
+    }
+    .auth-brand { display:flex; align-items:center; gap:11px; margin-bottom:32px; }
+    .auth-logo {
+      width:36px; height:36px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      border-radius:8px; display:flex; align-items:center; justify-content:center;
+      box-shadow:0 0 18px var(--glow); flex-shrink:0;
+    }
+    .auth-logo svg { width:18px; height:18px; fill:#fff; }
+    .auth-brand-name { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:3px; }
+    .auth-brand-name span { color:var(--accent); }
+    .auth-title { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:2px; margin-bottom:6px; }
+    .auth-sub { font-size:14px; color:var(--text-sub); margin-bottom:28px; line-height:1.6; }
+    .auth-error {
+      background:rgba(239,68,68,0.10); border:1px solid rgba(239,68,68,0.22);
+      border-radius:8px; padding:11px 16px; font-size:13px; color:#fca5a5;
+      margin-bottom:20px; display:flex; align-items:center; gap:8px;
+    }
+    .field { margin-bottom:16px; }
+    .field label { display:block; font-size:13px; font-weight:600; color:var(--text-sub); margin-bottom:6px; letter-spacing:0.3px; }
+    .field input {
+      width:100%; height:48px; padding:0 16px;
+      background:var(--bg3); border:1px solid var(--border);
+      border-radius:8px; color:var(--text);
+      font-family:'Barlow',sans-serif; font-size:15px; outline:none; transition:all 0.22s;
+    }
+    .field input::placeholder { color:var(--text-mute); }
+    .field input:focus { border-color:var(--border-hi); background:var(--bg4); box-shadow:0 0 0 3px var(--glow-soft); }
+    .auth-btn {
+      width:100%; height:50px; margin-top:8px;
+      background:var(--accent); border:none; border-radius:8px; color:#fff;
+      font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px;
+      cursor:pointer; transition:all 0.18s; box-shadow:0 6px 20px var(--glow);
+    }
+    .auth-btn:hover { background:var(--accent-hi); transform:translateY(-1px); }
+    .auth-divider { display:flex; align-items:center; gap:12px; margin:22px 0; }
+    .auth-divider::before,.auth-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+    .auth-divider span { font-size:12px; color:var(--text-mute); }
+    .auth-switch { text-align:center; font-size:14px; color:var(--text-sub); }
+    .auth-switch a { color:var(--accent); text-decoration:none; font-weight:600; }
+    .auth-switch a:hover { color:var(--accent-hi); }
+    .back-home {
+      display:inline-flex; align-items:center; gap:6px;
+      color:var(--text-mute); font-size:13px; text-decoration:none;
+      margin-bottom:22px; transition:color 0.18s;
+    }
+    .back-home:hover { color:var(--text); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);} }
+  </style>
+</head>
+<body>
+  <div class="auth-box">
+    <a href="/" class="back-home">← Back to HIVEMIND</a>
+    <div class="auth-brand">
+      <div class="auth-logo">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      </div>
+      <span class="auth-brand-name">HIVE<span>MIND</span></span>
+    </div>
+    {% if mode == 'signup' %}
+      <h1 class="auth-title">JOIN THE HIVE</h1>
+      <p class="auth-sub">Create your account to save your watchlist and get personalised recommendations.</p>
+    {% else %}
+      <h1 class="auth-title">WELCOME BACK</h1>
+      <p class="auth-sub">Sign in to access your library and watch history.</p>
+    {% endif %}
+    {% if error %}<div class="auth-error">✗ {{ error }}</div>{% endif %}
+    <form method="POST" autocomplete="off">
+      {% if mode == 'signup' %}
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required autocomplete="name"/>
+      </div>
+      {% endif %}
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email"/>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password"
+               placeholder="{% if mode=='signup' %}At least 6 characters{% else %}Your password{% endif %}"
+               required autocomplete="{{ 'new-password' if mode=='signup' else 'current-password' }}"/>
+      </div>
+      <button class="auth-btn" type="submit">{{ 'CREATE ACCOUNT →' if mode=='signup' else 'SIGN IN →' }}</button>
+    </form>
+    <div class="auth-divider"><span>or</span></div>
+    <div class="auth-switch">
+      {% if mode=='signup' %}Already have an account? <a href="/login">Sign in</a>
+      {% else %}Don't have an account? <a href="/signup">Sign up free</a>{% endif %}
+    </div>
+  </div>
+</body>
+</html>
